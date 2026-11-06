@@ -1,0 +1,13 @@
+# saida do build (o .exe vai nas Releases)
+dist/
+
+# dados locais, caso alguem rode com --portable dentro da pasta
+token.txt
+config.bak.json
+log.txt
+
+# Windows / editores
+Thumbs.db
+desktop.ini
+.vs/
+.vscode/

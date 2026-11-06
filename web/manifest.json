@@ -1,0 +1,9 @@
+{
+  "name": "PC Deck",
+  "short_name": "PC Deck",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#0b0d12",
+  "theme_color": "#0b0d12"
+}

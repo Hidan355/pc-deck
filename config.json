@@ -1,0 +1,436 @@
+{
+  "title": "PC Deck",
+  "port": 8765,
+  "columns": 3,
+  "columnsLandscape": 5,
+  "pages": [
+    {
+      "name": "Mídia",
+      "icon": "music_note",
+      "buttons": [
+        {
+          "label": "Anterior",
+          "icon": "skip_previous",
+          "color": "#7c5cff",
+          "actions": [
+            {
+              "type": "media",
+              "key": "prev"
+            }
+          ]
+        },
+        {
+          "label": "Play / Pause",
+          "icon": "play_pause",
+          "color": "#1ed760",
+          "actions": [
+            {
+              "type": "media",
+              "key": "play_pause"
+            }
+          ]
+        },
+        {
+          "label": "Próxima",
+          "icon": "skip_next",
+          "color": "#7c5cff",
+          "actions": [
+            {
+              "type": "media",
+              "key": "next"
+            }
+          ]
+        },
+        {
+          "label": "Volume -",
+          "icon": "volume_down",
+          "color": "#38bdf8",
+          "actions": [
+            {
+              "type": "volume",
+              "step": -5
+            }
+          ]
+        },
+        {
+          "label": "Mudo",
+          "icon": "volume_off",
+          "color": "#f43f5e",
+          "actions": [
+            {
+              "type": "volume",
+              "mute": "toggle"
+            }
+          ]
+        },
+        {
+          "label": "Volume +",
+          "icon": "volume_up",
+          "color": "#38bdf8",
+          "actions": [
+            {
+              "type": "volume",
+              "step": 5
+            }
+          ]
+        },
+        {
+          "label": "Spotify",
+          "icon": "library_music",
+          "color": "#1ed760",
+          "actions": [
+            {
+              "type": "open",
+              "target": "spotify:"
+            }
+          ]
+        },
+        {
+          "label": "YouTube",
+          "icon": "smart_display",
+          "color": "#ff3d3d",
+          "actions": [
+            {
+              "type": "open",
+              "target": "https://www.youtube.com"
+            }
+          ]
+        },
+        {
+          "label": "Volume 30%",
+          "icon": "graphic_eq",
+          "color": "#a78bfa",
+          "actions": [
+            {
+              "type": "volume",
+              "set": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Apps",
+      "icon": "apps",
+      "buttons": [
+        {
+          "label": "Navegador",
+          "icon": "public",
+          "color": "#38bdf8",
+          "actions": [
+            {
+              "type": "open",
+              "target": "https://www.google.com"
+            }
+          ]
+        },
+        {
+          "label": "Explorer",
+          "icon": "folder",
+          "color": "#fbbf24",
+          "actions": [
+            {
+              "type": "open",
+              "target": "explorer.exe"
+            }
+          ]
+        },
+        {
+          "label": "Downloads",
+          "icon": "download",
+          "color": "#fbbf24",
+          "actions": [
+            {
+              "type": "open",
+              "target": "explorer.exe",
+              "args": "shell:Downloads"
+            }
+          ]
+        },
+        {
+          "label": "Calculadora",
+          "icon": "calculate",
+          "color": "#a78bfa",
+          "actions": [
+            {
+              "type": "open",
+              "target": "calc.exe"
+            }
+          ]
+        },
+        {
+          "label": "Bloco de notas",
+          "icon": "edit_note",
+          "color": "#e2e8f0",
+          "actions": [
+            {
+              "type": "open",
+              "target": "notepad.exe"
+            }
+          ]
+        },
+        {
+          "label": "Terminal",
+          "icon": "terminal",
+          "color": "#94a3b8",
+          "actions": [
+            {
+              "type": "open",
+              "target": "powershell.exe"
+            }
+          ]
+        },
+        {
+          "label": "Gerenciador",
+          "icon": "monitoring",
+          "color": "#f97316",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "ctrl+shift+esc"
+            }
+          ]
+        },
+        {
+          "label": "Configurações",
+          "icon": "settings",
+          "color": "#94a3b8",
+          "actions": [
+            {
+              "type": "open",
+              "target": "ms-settings:"
+            }
+          ]
+        },
+        {
+          "label": "Som",
+          "icon": "speaker",
+          "color": "#38bdf8",
+          "actions": [
+            {
+              "type": "open",
+              "target": "ms-settings:sound"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Atalhos",
+      "icon": "keyboard",
+      "buttons": [
+        {
+          "label": "Copiar",
+          "icon": "content_copy",
+          "color": "#38bdf8",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "ctrl+c"
+            }
+          ]
+        },
+        {
+          "label": "Colar",
+          "icon": "content_paste",
+          "color": "#38bdf8",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "ctrl+v"
+            }
+          ]
+        },
+        {
+          "label": "Desfazer",
+          "icon": "undo",
+          "color": "#a78bfa",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "ctrl+z"
+            }
+          ]
+        },
+        {
+          "label": "Recorte de tela",
+          "icon": "screenshot_region",
+          "color": "#1ed760",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "win+shift+s"
+            }
+          ]
+        },
+        {
+          "label": "Área de trabalho",
+          "icon": "desktop_windows",
+          "color": "#fbbf24",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "win+d"
+            }
+          ]
+        },
+        {
+          "label": "Trocar janela",
+          "icon": "swap_horiz",
+          "color": "#fbbf24",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "alt+tab"
+            }
+          ]
+        },
+        {
+          "label": "Emojis",
+          "icon": "mood",
+          "color": "#f472b6",
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "win+period"
+            }
+          ]
+        },
+        {
+          "label": "Fechar janela",
+          "icon": "close",
+          "color": "#f43f5e",
+          "confirm": true,
+          "actions": [
+            {
+              "type": "keys",
+              "keys": "alt+f4"
+            }
+          ]
+        },
+        {
+          "label": "Bloquear PC",
+          "icon": "lock",
+          "color": "#f43f5e",
+          "confirm": true,
+          "actions": [
+            {
+              "type": "run",
+              "cmd": "rundll32.exe user32.dll,LockWorkStation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Macros",
+      "icon": "bolt",
+      "buttons": [
+        {
+          "label": "Modo trabalho",
+          "icon": "rocket_launch",
+          "color": "#7c5cff",
+          "actions": [
+            {
+              "type": "volume",
+              "set": 20
+            },
+            {
+              "type": "open",
+              "target": "https://mail.google.com"
+            },
+            {
+              "type": "wait",
+              "ms": 400
+            },
+            {
+              "type": "open",
+              "target": "https://calendar.google.com"
+            },
+            {
+              "type": "page",
+              "to": "Atalhos"
+            }
+          ]
+        },
+        {
+          "label": "Assinatura",
+          "icon": "signature",
+          "color": "#38bdf8",
+          "actions": [
+            {
+              "type": "text",
+              "text": "\nAtenciosamente,\nSeu Nome"
+            }
+          ]
+        },
+        {
+          "label": "Pausa café",
+          "icon": "coffee",
+          "color": "#f97316",
+          "actions": [
+            {
+              "type": "media",
+              "key": "play_pause"
+            },
+            {
+              "type": "keys",
+              "keys": "win+d"
+            },
+            {
+              "type": "run",
+              "cmd": "rundll32.exe user32.dll,LockWorkStation"
+            }
+          ]
+        },
+        {
+          "label": "Desligar em 1h",
+          "icon": "bedtime",
+          "color": "#a78bfa",
+          "confirm": true,
+          "actions": [
+            {
+              "type": "run",
+              "cmd": "shutdown /s /t 3600"
+            }
+          ]
+        },
+        {
+          "label": "Cancelar desligar",
+          "icon": "cancel",
+          "color": "#1ed760",
+          "actions": [
+            {
+              "type": "run",
+              "cmd": "shutdown /a"
+            }
+          ]
+        },
+        {
+          "label": "Reiniciar",
+          "icon": "restart_alt",
+          "color": "#f97316",
+          "confirm": true,
+          "actions": [
+            {
+              "type": "run",
+              "cmd": "shutdown /r /t 5"
+            }
+          ]
+        },
+        {
+          "label": "Desligar",
+          "icon": "power_settings_new",
+          "color": "#f43f5e",
+          "confirm": true,
+          "actions": [
+            {
+              "type": "run",
+              "cmd": "shutdown /s /t 5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

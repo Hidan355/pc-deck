@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PC Deck Editor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237c5cff'/%3E%3Cg fill='%23fff'%3E%3Crect x='14' y='14' width='15' height='15' rx='4'/%3E%3Crect x='35' y='14' width='15' height='15' rx='4'/%3E%3Crect x='14' y='35' width='15' height='15' rx='4'/%3E%3Crect x='35' y='35' width='15' height='15' rx='4' opacity='.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&display=block" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0d12;
+  --panel: #12161f;
+  --panel2: #171c27;
+  --tile: #181d29;
+  --line: rgba(255,255,255,.07);
+  --line2: rgba(255,255,255,.12);
+  --text: #eef1f7;
+  --dim: #8a93a6;
+  --acc: #7c5cff;
+  --ok: #1ed760;
+  --bad: #f43f5e;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', system-ui, sans-serif; font-size: 14px; overflow: hidden; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; }
+.ms { font-family: 'Material Symbols Rounded'; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; font-feature-settings: 'liga'; display: inline-block; overflow: hidden; }
+
+.app { display: grid; grid-template-columns: 250px 1fr 410px; grid-template-rows: 58px 1fr; height: 100vh; }
+
+/* topo */
+.top { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; }
+.logo { width: 32px; height: 32px; border-radius: 10px; background: var(--acc); display: grid; place-items: center; font-size: 20px; color: #fff; }
+.brand .sub { color: var(--dim); font-weight: 500; }
+.spacer { flex: 1; }
+.status { color: var(--dim); font-size: 13px; display: flex; align-items: center; gap: 5px; }
+.status .ms { font-size: 17px; }
+.status.dirty { color: #fbbf24; }
+.status.saved { color: var(--ok); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; padding: 0 14px; border-radius: 10px; font-weight: 500; background: var(--panel2); border: 1px solid var(--line); transition: background .15s, border-color .15s, opacity .15s; white-space: nowrap; }
+.btn:hover { background: #1e2432; border-color: var(--line2); }
+.btn .ms { font-size: 19px; }
+.btn.primary { background: var(--acc); border-color: transparent; color: #fff; }
+.btn.primary:hover { background: #8d71ff; }
+.btn:disabled { opacity: .4; pointer-events: none; }
+.btn.danger { color: var(--bad); }
+.btn.danger:hover { background: rgba(244,63,94,.12); border-color: rgba(244,63,94,.3); }
+.btn.sm { height: 30px; padding: 0 10px; font-size: 13px; border-radius: 8px; }
+.btn.sm .ms { font-size: 17px; }
+.btn.icon { width: 30px; padding: 0; }
+
+/* lateral */
+.side { border-right: 1px solid var(--line); background: var(--panel); padding: 16px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.sec-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin: 6px 6px 4px; }
+.sec-title.gap { margin-top: 22px; }
+.pg { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; cursor: pointer; color: var(--dim); border: 1px solid transparent; }
+.pg:hover { background: var(--panel2); color: var(--text); }
+.pg.on { background: rgba(124,92,255,.14); color: var(--text); border-color: rgba(124,92,255,.3); }
+.pg.on .ms:first-child { color: var(--acc); }
+.pg .ms { font-size: 20px; }
+.pg .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.pg .ct { font-size: 12px; color: var(--dim); background: rgba(255,255,255,.06); border-radius: 6px; padding: 1px 6px; }
+.pg.dragover { border-color: var(--acc); border-style: dashed; }
+.side .btn.add { justify-content: flex-start; margin-top: 4px; background: transparent; border-style: dashed; color: var(--dim); }
+.side .btn.add:hover { color: var(--text); }
+/* assinatura neon / glitch */
+.signature { margin-top: auto; padding: 20px 6px 4px; user-select: none; }
+.signature .tag { display: inline-flex; flex-direction: column; gap: 5px; }
+.signature .glitch {
+  position: relative; display: inline-block;
+  font-family: 'Orbitron', 'Outfit', sans-serif; font-weight: 900; font-size: 17px; letter-spacing: .22em;
+  color: #f0fdff;
+  text-shadow: 0 0 4px #22d3ee, 0 0 12px rgba(34,211,238,.7), 0 0 24px rgba(124,92,255,.6);
+  animation: flicker 6s infinite;
+}
+.signature .glitch::before, .signature .glitch::after {
+  content: attr(data-text); position: absolute; inset: 0; pointer-events: none;
+}
+.signature .glitch::before { color: #ff2bd6; text-shadow: none; transform: translate(-2px, 0); clip-path: inset(0 0 60% 0); mix-blend-mode: screen; animation: glitch-a 3.2s infinite steps(1); }
+.signature .glitch::after { color: #22d3ee; text-shadow: none; transform: translate(2px, 0); clip-path: inset(55% 0 0 0); mix-blend-mode: screen; animation: glitch-b 2.7s infinite steps(1); }
+.signature .bar { height: 3px; width: 100%; background: linear-gradient(90deg, #ff2bd6, #7c5cff 45%, #22d3ee); box-shadow: 0 0 10px rgba(255,43,214,.6), 0 0 14px rgba(34,211,238,.5);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.signature .sub { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 8px; letter-spacing: .35em; color: rgba(34,211,238,.55); }
+@keyframes glitch-a {
+  0%, 88%, 100% { transform: translate(-2px, 0); clip-path: inset(0 0 60% 0); }
+  90% { transform: translate(-4px, -1px); clip-path: inset(10% 0 45% 0); }
+  94% { transform: translate(3px, 1px); clip-path: inset(40% 0 20% 0); }
+}
+@keyframes glitch-b {
+  0%, 84%, 100% { transform: translate(2px, 0); clip-path: inset(55% 0 0 0); }
+  86% { transform: translate(5px, 1px); clip-path: inset(70% 0 5% 0); }
+  92% { transform: translate(-3px, 0); clip-path: inset(30% 0 40% 0); }
+}
+@keyframes flicker { 0%, 96%, 100% { opacity: 1; } 97% { opacity: .55; } 98% { opacity: 1; } 99% { opacity: .75; } }
+@media (prefers-reduced-motion: reduce) { .signature .glitch, .signature .glitch::before, .signature .glitch::after { animation: none; } }
+
+/* campos */
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--dim); font-weight: 500; }
+.field input, .field select, .field textarea, .inp { background: var(--bg); border: 1px solid var(--line2); border-radius: 9px; padding: 8px 10px; color: var(--text); font-size: 14px; outline: none; width: 100%; transition: border-color .15s; }
+.field textarea { resize: vertical; min-height: 70px; font-family: Consolas, 'Cascadia Mono', monospace; font-size: 13px; }
+.field input:focus, .field select:focus, .field textarea:focus, .inp:focus { border-color: var(--acc); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.side .field { padding: 0 6px; margin-bottom: 8px; }
+
+/* palco */
+.stage { overflow-y: auto; padding: 22px 28px 40px; display: flex; flex-direction: column; align-items: center;
+  background: radial-gradient(700px 400px at 50% 0%, rgba(124,92,255,.12), transparent 70%), var(--bg); }
+.stage-head { width: 100%; max-width: 520px; display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.stage-head h2 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+.stage-head h2 .ms { color: var(--acc); }
+.hint { color: var(--dim); font-size: 12px; }
+.phone { width: 100%; max-width: 520px; background: #0e1118; border: 1px solid var(--line2); border-radius: 34px; padding: 18px; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.grid { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 12px; }
+.tile { --c: var(--acc); position: relative; aspect-ratio: 1; border-radius: 20px; background: linear-gradient(160deg, color-mix(in srgb, var(--c) 16%, var(--tile)) 0%, var(--tile) 70%); border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 8px; cursor: pointer; transition: transform .12s, box-shadow .2s, border-color .2s; }
+.tile:hover { border-color: var(--line2); transform: translateY(-2px); }
+.tile .ico { width: 46%; max-width: 54px; aspect-ratio: 1; border-radius: 30%; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 20%, transparent); color: var(--c); }
+.tile .ico .ms { font-size: 28px; }
+.tile .lbl { font-size: 12.5px; font-weight: 500; text-align: center; line-height: 1.15; max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.tile .lock { position: absolute; top: 8px; right: 9px; font-size: 14px; color: var(--dim); }
+.tile.sel { border-color: var(--c); box-shadow: 0 0 0 2px var(--c), 0 0 30px color-mix(in srgb, var(--c) 35%, transparent); }
+.tile.dragging { opacity: .35; }
+.tile.dragover { transform: scale(1.05); border-color: var(--text); border-style: dashed; }
+.tile.add { background: transparent; border: 2px dashed var(--line2); color: var(--dim); }
+.tile.add:hover { color: var(--text); border-color: var(--acc); }
+.tile.add .ms { font-size: 34px; }
+.empty-actions { font-size: 10px; position: absolute; bottom: 6px; color: #fbbf24; }
+
+/* painel direito */
+.panel { border-left: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 18px 18px 60px; display: flex; flex-direction: column; gap: 16px; }
+.panel h3 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.panel h3 .ms { color: var(--dim); font-size: 20px; }
+.card { background: var(--panel2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.card-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); display: flex; align-items: center; justify-content: space-between; }
+.preview-row { display: flex; gap: 14px; align-items: center; }
+.preview-row .tile { width: 104px; flex: none; cursor: default; }
+.preview-row .tile:hover { transform: none; }
+.preview-row .fields { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.sw { width: 26px; height: 26px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
+.sw.on { border-color: #fff; }
+.sw-custom { position: relative; width: 26px; height: 26px; border-radius: 8px; overflow: hidden; border: 1px dashed var(--line2); display: grid; place-items: center; color: var(--dim); }
+.sw-custom .ms { font-size: 16px; pointer-events: none; }
+.sw-custom input { position: absolute; inset: -6px; opacity: 0; cursor: pointer; }
+
+.icon-search { display: flex; gap: 8px; align-items: center; }
+.icon-search .cur { width: 38px; height: 38px; flex: none; border-radius: 10px; display: grid; place-items: center; background: var(--bg); border: 1px solid var(--line2); }
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 4px; max-height: 172px; overflow-y: auto; padding: 2px; }
+.icon-grid button { aspect-ratio: 1; border-radius: 9px; display: grid; place-items: center; color: var(--dim); }
+.icon-grid button:hover { background: rgba(255,255,255,.07); color: var(--text); }
+.icon-grid button.on { background: rgba(124,92,255,.2); color: var(--acc); }
+.icon-grid .ms { font-size: 22px; }
+.icon-note { font-size: 12px; color: var(--dim); }
+.icon-note a { color: var(--acc); }
+
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
+.toggle .txt b { display: block; font-weight: 500; }
+.toggle .txt span { font-size: 12px; color: var(--dim); }
+.switch { width: 40px; height: 23px; border-radius: 999px; background: rgba(255,255,255,.12); position: relative; flex: none; transition: background .2s; }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.toggle.on .switch { background: var(--acc); }
+.toggle.on .switch::after { transform: translateX(17px); }
+
+.act { background: var(--bg); border: 1px solid var(--line2); border-radius: 12px; overflow: hidden; }
+.act-head { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--line); }
+.act-head .num { width: 22px; height: 22px; border-radius: 7px; background: rgba(124,92,255,.18); color: var(--acc); font-size: 12px; font-weight: 700; display: grid; place-items: center; flex: none; }
+.act-head .ms.t { font-size: 18px; color: var(--dim); }
+.act-head .nm { flex: 1; font-weight: 500; }
+.act-head button { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; color: var(--dim); }
+.act-head button:hover { background: rgba(255,255,255,.08); color: var(--text); }
+.act-head button.del:hover { color: var(--bad); background: rgba(244,63,94,.12); }
+.act-head button .ms { font-size: 18px; }
+.act-body { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,.06); border: 1px solid var(--line); font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.chip:hover { border-color: var(--line2); }
+.chip.on { background: rgba(124,92,255,.2); border-color: rgba(124,92,255,.5); }
+.chip .ms { font-size: 16px; }
+.rec { display: flex; gap: 8px; }
+.rec input { flex: 1; font-family: Consolas, monospace; }
+.btn.recording { background: var(--bad); color: #fff; border-color: transparent; animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .7; } }
+.app-tag { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 9px; background: rgba(30,215,96,.08); border: 1px solid rgba(30,215,96,.25); font-size: 13px; }
+.app-tag .ms { color: var(--ok); font-size: 18px; }
+.add-act { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.add-act button { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 10px; background: var(--bg); border: 1px dashed var(--line2); color: var(--dim); font-size: 13px; text-align: left; }
+.add-act button:hover { color: var(--text); border-color: var(--acc); border-style: solid; }
+.add-act .ms { font-size: 18px; }
+.muted { color: var(--dim); font-size: 13px; line-height: 1.5; }
+.footer-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.footer-btns .btn { flex: 1; }
+
+/* modal de apps */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; place-items: center; z-index: 30; }
+.modal.show { display: grid; }
+.modal-box { width: min(520px, 92vw); max-height: 80vh; background: var(--panel); border: 1px solid var(--line2); border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+.modal-head { padding: 16px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid var(--line); }
+.modal-head input { flex: 1; }
+.app-list { overflow-y: auto; padding: 8px; }
+.app-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 9px; text-align: left; }
+.app-item:hover { background: rgba(255,255,255,.06); }
+.app-item .ms { color: var(--dim); font-size: 20px; }
+.app-item small { color: var(--dim); margin-left: auto; font-size: 11px; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: #222838; border: 1px solid var(--line2); padding: 11px 18px; border-radius: 12px; opacity: 0; transition: .25s; pointer-events: none; z-index: 40; display: flex; gap: 8px; align-items: center; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.bad { border-color: rgba(244,63,94,.5); }
+.toast .ms { font-size: 19px; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
+
+/* configuracoes */
+[hidden] { display: none !important; }
+.view { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.set-wrap { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 14px; }
+.set-wrap .card { background: var(--panel); }
+.ipbox { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ipbox .lbl { font-size: 12px; color: var(--dim); }
+.ipbox .ip { font-size: 34px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 500; }
+.badge .ms { font-size: 16px; }
+.badge.warn { background: rgba(251,191,36,.12); color: #fbbf24; border: 1px solid rgba(251,191,36,.3); }
+.badge.ok { background: rgba(30,215,96,.1); color: var(--ok); border: 1px solid rgba(30,215,96,.3); }
+.kv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.kv div { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; min-width: 0; }
+.kv span { display: block; font-size: 11.5px; color: var(--dim); margin-bottom: 3px; }
+.kv b { font-weight: 600; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.copyrow { display: flex; gap: 8px; }
+.copyrow input { flex: 1; font-family: Consolas, monospace; font-size: 13px; }
+.steps { display: flex; flex-direction: column; gap: 12px; counter-reset: step; }
+.step { display: grid; grid-template-columns: 30px 1fr; gap: 12px; }
+.step::before { counter-increment: step; content: counter(step); width: 30px; height: 30px; border-radius: 10px; background: rgba(124,92,255,.18); color: var(--acc); font-weight: 700; display: grid; place-items: center; }
+.step h4 { margin: 4px 0 6px; font-size: 14.5px; }
+.step p { margin: 0 0 8px; color: var(--dim); font-size: 13px; line-height: 1.5; }
+.val { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--line2); border-radius: 9px; padding: 6px 6px 6px 10px; margin-bottom: 6px; }
+.val span { font-size: 11.5px; color: var(--dim); width: 74px; flex: none; }
+.val b { flex: 1; font-family: Consolas, monospace; font-size: 14px; }
+.note { font-size: 12.5px; color: var(--dim); line-height: 1.5; background: rgba(56,189,248,.07); border: 1px solid rgba(56,189,248,.2); border-radius: 10px; padding: 10px 12px; }
+.note b { color: var(--text); }
+
+@media (max-width: 1100px) { .app { grid-template-columns: 210px 1fr 360px; } }
+@media (max-width: 920px) {
+  .app { grid-template-columns: 170px 1fr 320px; }
+  .stage { padding: 16px 12px 30px; }
+  .phone { padding: 12px; border-radius: 24px; }
+  .grid { gap: 8px; }
+  .tile .ico .ms { font-size: 22px; }
+  .tile .lbl { font-size: 11px; }
+  .hint, .btn .kbd, #qrBtn span:last-child { display: none; }
+  .add-act { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="logo ms">grid_view</span>PC Deck <span class="sub">Editor</span></div>
+    <div class="spacer"></div>
+    <span class="status" id="status"></span>
+    <button class="btn" id="qrBtn" title="Mostrar QR do celular"><span class="ms">qr_code_2</span><span>Celular</span></button>
+    <button class="btn" id="revert" disabled><span class="ms">undo</span>Descartar</button>
+    <button class="btn primary" id="save" disabled><span class="ms">save</span>Salvar <span class="kbd" style="opacity:.6;font-size:12px">Ctrl+S</span></button>
+  </header>
+
+  <aside class="side">
+    <div class="sec-title">Páginas</div>
+    <div id="pages"></div>
+    <button class="btn add" id="addPage"><span class="ms">add</span>Nova página</button>
+
+    <div class="sec-title gap">Geral</div>
+    <label class="field">Nome do painel <input id="gTitle"></label>
+    <div class="row2" style="padding:0 6px">
+      <label class="field" style="padding:0">Colunas em pé <input type="number" id="gCols" min="2" max="8"></label>
+      <label class="field" style="padding:0">Colunas deitado <input type="number" id="gColsL" min="2" max="10"></label>
+    </div>
+
+    <div class="sec-title gap">Sistema</div>
+    <div class="pg" id="settingsNav"><span class="ms">settings</span><span class="nm">Configurações</span></div>
+
+    <div class="signature">
+      <div class="tag">
+        <span class="glitch" data-text="BY TH">BY TH</span>
+        <span class="bar"></span>
+        <span class="sub">PC//DECK v1.0</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="view" id="pageView">
+      <div class="stage-head"><h2 id="pageTitle"></h2><span class="hint">Clique para editar · arraste para reordenar</span></div>
+      <div class="phone"><div class="grid" id="grid"></div></div>
+    </div>
+    <div class="view" id="settingsView" hidden></div>
+  </main>
+
+  <section class="panel" id="panel"></section>
+</div>
+
+<div class="modal" id="appsModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <input class="inp" id="appsSearch" placeholder="Buscar app instalado...">
+      <button class="btn icon sm" id="appsClose"><span class="ms">close</span></button>
+    </div>
+    <div class="app-list" id="appsList"><div class="muted" style="padding:12px">Carregando...</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TOKEN = '{{TOKEN}}';
+const PHONE_URL = '{{URL}}';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+
+const COLORS = ['#7c5cff', '#a78bfa', '#38bdf8', '#22d3ee', '#1ed760', '#84cc16', '#fbbf24', '#f97316', '#f43f5e', '#f472b6', '#e2e8f0', '#94a3b8'];
+
+const ICONS = ('play_pause play_arrow pause stop skip_previous skip_next fast_forward fast_rewind replay shuffle repeat ' +
+  'volume_up volume_down volume_off volume_mute graphic_eq music_note library_music queue_music album headphones speaker mic mic_off ' +
+  'smart_display movie videocam live_tv radio podcasts ' +
+  'apps public language folder folder_open download upload description edit_note calculate terminal code monitoring settings tune ' +
+  'chat forum mail send call notifications calendar_month schedule alarm timer event ' +
+  'sports_esports videogame_asset joystick stadia_controller directions_car local_shipping agriculture flight sports_motorsports ' +
+  'content_copy content_paste content_cut undo redo save search select_all keyboard mouse screenshot_region screenshot photo_camera image ' +
+  'desktop_windows computer laptop monitor swap_horiz tab tab_close open_in_new close fullscreen minimize picture_in_picture ' +
+  'lock lock_open power_settings_new restart_alt bedtime dark_mode light_mode brightness_high cancel block ' +
+  'mood favorite star bolt rocket_launch coffee local_cafe restaurant fitness_center home work school shopping_cart ' +
+  'signature translate wifi bluetooth cloud sync refresh delete add remove check help info warning flag bookmark push_pin ' +
+  'stream cast cast_connected record_voice_over campaign theaters wallpaper palette brush auto_awesome magic_button ' +
+  'person group visibility visibility_off pets eco spa light lightbulb thermostat battery_full memory ' +
+  'arrow_upward arrow_downward arrow_back arrow_forward north south east west zoom_in zoom_out').split(' ');
+
+const TYPES = {
+  keys:   { label: 'Atalho de teclado', icon: 'keyboard', def: () => ({ keys: '' }) },
+  media:  { label: 'Controle de mídia', icon: 'play_circle', def: () => ({ key: 'play_pause' }) },
+  volume: { label: 'Volume', icon: 'volume_up', def: () => ({ step: 5 }) },
+  open:   { label: 'Abrir app / site / pasta', icon: 'open_in_new', def: () => ({ target: '' }) },
+  text:   { label: 'Digitar texto', icon: 'text_fields', def: () => ({ text: '' }) },
+  run:    { label: 'Comando PowerShell', icon: 'terminal', def: () => ({ cmd: '' }) },
+  wait:   { label: 'Esperar', icon: 'hourglass_empty', def: () => ({ ms: 300 }) },
+  page:   { label: 'Ir para página', icon: 'tab', def: () => ({ to: cfg.pages[0]?.name || '' }) }
+};
+const MEDIA = [['play_pause', 'Play / Pause', 'play_pause'], ['prev', 'Anterior', 'skip_previous'], ['next', 'Próxima', 'skip_next'], ['stop', 'Parar', 'stop']];
+
+let cfg = null, savedText = '', pageIdx = 0, btnIdx = null, recording = null;
+
+// ---------- API ----------
+async function api(path, body, raw) {
+  const r = await fetch(path, {
+    method: body !== undefined ? 'POST' : 'GET',
+    headers: { 'X-Token': TOKEN, 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : (raw ? body : JSON.stringify(body))
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.ok === false) throw new Error(j.error || ('Erro ' + r.status));
+  return j;
+}
+
+let toastT;
+function toast(msg, bad, icon) {
+  const t = $('toast');
+  t.innerHTML = `<span class="ms">${icon || (bad ? 'error' : 'check_circle')}</span><span></span>`;
+  t.lastChild.textContent = msg;
+  t.classList.toggle('bad', !!bad);
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ---------- estado ----------
+const page = () => cfg.pages[pageIdx];
+const btn = () => btnIdx === null ? null : page().buttons[btnIdx];
+const isDirty = () => JSON.stringify(cfg, null, 2) !== savedText;
+
+function changed() {
+  const d = isDirty();
+  $('save').disabled = !d;
+  $('revert').disabled = !d;
+  const s = $('status');
+  s.className = 'status' + (d ? ' dirty' : '');
+  s.innerHTML = d ? '<span class="ms">edit</span>Alterações não salvas' : '<span class="ms">cloud_done</span>Tudo salvo';
+}
+
+function normalize(c) {
+  c.pages = c.pages || [];
+  c.pages.forEach(p => {
+    p.buttons = p.buttons || [];
+    p.buttons.forEach(b => {
+      if (!b.actions) { b.actions = b.action ? [b.action] : []; delete b.action; }
+    });
+  });
+  return c;
+}
+
+async function load() {
+  const r = await fetch('/api/config', { headers: { 'X-Token': TOKEN } });
+  cfg = normalize(await r.json());
+  savedText = JSON.stringify(cfg, null, 2);
+  if (pageIdx >= cfg.pages.length) pageIdx = 0;
+  btnIdx = null;
+  renderAll();
+}
+
+async function save() {
+  if (!isDirty()) return;
+  const text = JSON.stringify(cfg, null, 2);
+  try {
+    await api('/api/editor/save', text, true);
+    savedText = text;
+    changed();
+    const s = $('status');
+    s.className = 'status saved';
+    s.innerHTML = '<span class="ms">check_circle</span>Salvo · o celular já atualizou';
+    toast('Salvo! O celular atualiza sozinho.');
+  } catch (e) { toast('Erro ao salvar: ' + e.message, true); }
+}
+
+// ---------- render ----------
+function renderAll() {
+  applyView();
+  renderGeneral();
+  renderPages();
+  renderGrid();
+  renderPanel();
+  changed();
+}
+
+function renderGeneral() {
+  $('gTitle').value = cfg.title || '';
+  $('gCols').value = cfg.columns || 3;
+  $('gColsL').value = cfg.columnsLandscape || 5;
+}
+
+function renderPages() {
+  const box = $('pages');
+  box.innerHTML = '';
+  cfg.pages.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'pg' + (i === pageIdx && view === 'page' ? ' on' : '');
+    d.draggable = true;
+    d.innerHTML = `<span class="ms">${esc(p.icon || 'grid_view')}</span><span class="nm">${esc(p.name)}</span><span class="ct">${p.buttons.length}</span>`;
+    d.onclick = () => { pageIdx = i; btnIdx = null; setView('page'); };
+    dnd(d, 'page', i, (from, to) => {
+      const cur = cfg.pages[pageIdx];
+      cfg.pages.splice(to, 0, cfg.pages.splice(from, 1)[0]);
+      pageIdx = cfg.pages.indexOf(cur);
+      renderPages(); changed();
+    });
+    box.appendChild(d);
+  });
+}
+
+function tileHTML(b) {
+  const empty = !(b.actions || []).length;
+  return `<span class="ico"><span class="ms">${esc(b.icon || 'radio_button_unchecked')}</span></span>` +
+    `<span class="lbl">${esc(b.label)}</span>` +
+    (b.confirm ? '<span class="ms lock">touch_app</span>' : '') +
+    (empty ? '<span class="empty-actions">sem ação</span>' : '');
+}
+
+function renderGrid() {
+  const p = page();
+  $('pageTitle').innerHTML = p ? `<span class="ms">${esc(p.icon || 'grid_view')}</span>${esc(p.name)}` : 'Sem páginas';
+  const grid = $('grid');
+  grid.style.setProperty('--cols', cfg.columns || 3);
+  grid.innerHTML = '';
+  if (!p) return;
+  p.buttons.forEach((b, i) => {
+    const t = document.createElement('div');
+    t.className = 'tile' + (i === btnIdx ? ' sel' : '');
+    t.style.setProperty('--c', b.color || '#7c5cff');
+    t.draggable = true;
+    t.innerHTML = tileHTML(b);
+    t.onclick = () => { btnIdx = i; renderGrid(); renderPanel(); };
+    dnd(t, 'btn', i, (from, to) => {
+      const cur = btn();
+      p.buttons.splice(to, 0, p.buttons.splice(from, 1)[0]);
+      if (cur) btnIdx = p.buttons.indexOf(cur);
+      renderGrid(); changed();
+    });
+    grid.appendChild(t);
+  });
+  const add = document.createElement('div');
+  add.className = 'tile add';
+  add.innerHTML = '<span class="ms">add</span><span class="lbl">Novo botão</span>';
+  add.onclick = addButton;
+  grid.appendChild(add);
+}
+
+// arrastar e soltar (paginas e botoes)
+let drag = null;
+function dnd(el, kind, idx, onMove) {
+  el.addEventListener('dragstart', e => { drag = { kind, idx }; el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+  el.addEventListener('dragend', () => { el.classList.remove('dragging'); drag = null; });
+  el.addEventListener('dragover', e => { if (drag && drag.kind === kind) { e.preventDefault(); el.classList.add('dragover'); } });
+  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('dragover');
+    if (drag && drag.kind === kind && drag.idx !== idx) onMove(drag.idx, idx);
+  });
+  // botao solto sobre uma pagina: move para ela
+  if (kind === 'page') {
+    el.addEventListener('dragover', e => { if (drag && drag.kind === 'btn' && idx !== pageIdx) { e.preventDefault(); el.classList.add('dragover'); } });
+    el.addEventListener('drop', () => {
+      if (drag && drag.kind === 'btn' && idx !== pageIdx) {
+        const [b] = page().buttons.splice(drag.idx, 1);
+        cfg.pages[idx].buttons.push(b);
+        btnIdx = null;
+        renderPages(); renderGrid(); renderPanel(); changed();
+        toast(`Movido para "${cfg.pages[idx].name}"`, false, 'drive_file_move');
+      }
+    });
+  }
+}
+
+function refreshPreview() {
+  // atualiza grade/preview sem redesenhar o painel (mantem o foco do campo)
+  renderGrid();
+  const pv = document.querySelector('.preview-row .tile');
+  if (pv && btn()) { pv.style.setProperty('--c', btn().color || '#7c5cff'); pv.innerHTML = tileHTML(btn()); }
+  changed();
+}
+
+// ---------- painel ----------
+function renderPanel() {
+  const panel = $('panel');
+  if (view === 'settings') { renderTutorial(); return; }
+  const b = btn();
+  if (!page()) { panel.innerHTML = '<div class="muted">Crie uma página para começar.</div>'; return; }
+  panel.innerHTML = b ? buttonPanel(b) : pagePanel(page());
+  bindPanel();
+}
+
+function iconPicker(cur, scope) {
+  return `
+    <div class="icon-search">
+      <span class="cur"><span class="ms">${esc(cur)}</span></span>
+      <input class="inp" data-icon-input="${scope}" value="${esc(cur)}" placeholder="Buscar ícone (em inglês: music, folder...)">
+    </div>
+    <div class="icon-grid" data-icon-grid="${scope}"></div>
+    <div class="icon-note">Mais ícones em <a href="https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Rounded" target="_blank">fonts.google.com/icons</a>: copie o nome e cole acima.</div>`;
+}
+
+function pagePanel(p) {
+  return `
+    <h3><span class="ms">tab</span>Página</h3>
+    <div class="card">
+      <label class="field">Nome <input data-page="name" value="${esc(p.name)}"></label>
+      <div class="field">Ícone da aba</div>
+      ${iconPicker(p.icon || 'grid_view', 'page')}
+    </div>
+    <div class="muted">Clique num botão da grade para editar, ou em <b>+ Novo botão</b>. Arraste um botão para uma página da lateral para mover.</div>
+    <div class="footer-btns">
+      <button class="btn danger" id="delPage" ${cfg.pages.length < 2 ? 'disabled' : ''}><span class="ms">delete</span>Excluir página</button>
+    </div>`;
+}
+
+function buttonPanel(b) {
+  const color = b.color || '#7c5cff';
+  const sw = COLORS.map(c => `<button class="sw${c.toLowerCase() === color.toLowerCase() ? ' on' : ''}" style="background:${c}" data-color="${c}"></button>`).join('');
+  return `
+    <h3><span class="ms">touch_app</span>Botão
+      <span style="flex:1"></span>
+      <button class="btn sm icon" id="closeBtn" title="Fechar"><span class="ms">close</span></button>
+    </h3>
+    <div class="card">
+      <div class="preview-row">
+        <div class="tile" style="--c:${esc(color)}">${tileHTML(b)}</div>
+        <div class="fields">
+          <label class="field">Texto <input data-btn="label" value="${esc(b.label)}" maxlength="30"></label>
+          <div class="field">Cor</div>
+          <div class="swatches">${sw}<label class="sw-custom" title="Outra cor"><span class="ms">colorize</span><input type="color" id="colorPick" value="${esc(color)}"></label></div>
+        </div>
+      </div>
+      <div class="field">Ícone</div>
+      ${iconPicker(b.icon || 'radio_button_unchecked', 'btn')}
+      <div class="toggle${b.confirm ? ' on' : ''}" id="confirmToggle">
+        <div class="txt"><b>Segurar para confirmar</b><span>Para ações perigosas, como desligar ou fechar</span></div>
+        <div class="switch"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ações · executadas em ordem<span>${b.actions.length}</span></div>
+      ${b.actions.length ? b.actions.map((a, i) => actionHTML(a, i, b.actions.length)).join('') : '<div class="muted">Nenhuma ação ainda. Escolha abaixo o que o botão faz. Com várias ações ele vira uma macro.</div>'}
+      <div class="card-title" style="margin-top:4px">Adicionar ação</div>
+      <div class="add-act">
+        ${Object.entries(TYPES).map(([k, t]) => `<button data-add="${k}"><span class="ms">${t.icon}</span>${t.label}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="footer-btns">
+      <button class="btn" id="testBtn"><span class="ms">play_arrow</span>Testar no PC</button>
+      <button class="btn" id="dupBtn"><span class="ms">content_copy</span>Duplicar</button>
+      <button class="btn danger" id="delBtn"><span class="ms">delete</span>Excluir</button>
+    </div>`;
+}
+
+function actionHTML(a, i, n) {
+  const t = TYPES[a.type] || { label: a.type, icon: 'help' };
+  let body = '';
+  switch (a.type) {
+    case 'keys':
+      body = `<div class="rec"><input class="inp" data-a="${i}" data-k="keys" value="${esc(a.keys)}" placeholder="ex: ctrl+shift+s">
+        <button class="btn sm" data-rec="${i}"><span class="ms">radio_button_checked</span>Gravar</button></div>
+        <div class="muted" style="font-size:12px">Clique em Gravar e aperte o atalho. Alguns (como os com a tecla Windows) precisam ser digitados à mão: <code>win+d</code>.</div>`;
+      break;
+    case 'media':
+      body = `<div class="chips">${MEDIA.map(([k, l, ic]) => `<span class="chip${a.key === k ? ' on' : ''}" data-a="${i}" data-set-k="key" data-v="${k}"><span class="ms">${ic}</span>${l}</span>`).join('')}</div>`;
+      break;
+    case 'volume': {
+      const mode = a.mute !== undefined ? 'mute' : a.set !== undefined ? 'set' : 'step';
+      body = `<div class="chips">
+          <span class="chip${mode === 'step' ? ' on' : ''}" data-a="${i}" data-vol="step">Aumentar / diminuir</span>
+          <span class="chip${mode === 'set' ? ' on' : ''}" data-a="${i}" data-vol="set">Definir nível</span>
+          <span class="chip${mode === 'mute' ? ' on' : ''}" data-a="${i}" data-vol="mute">Mudo liga/desliga</span>
+        </div>` +
+        (mode === 'step' ? `<label class="field">Quanto (use negativo para diminuir) <input type="number" data-a="${i}" data-k="step" data-num value="${esc(a.step)}" min="-100" max="100"></label>` : '') +
+        (mode === 'set' ? `<label class="field">Nível (0 a 100) <input type="number" data-a="${i}" data-k="set" data-num value="${esc(a.set)}" min="0" max="100"></label>` : '');
+      break;
+    }
+    case 'open':
+      body = (a.app ? `<div class="app-tag"><span class="ms">apps</span>App: <b>${esc(a.app)}</b></div>` : '') +
+        `<div class="chips">
+          <span class="chip" data-pick-app="${i}"><span class="ms">apps</span>Apps instalados</span>
+          <span class="chip" data-pick="${i}" data-kind="file"><span class="ms">draft</span>Arquivo / programa</span>
+          <span class="chip" data-pick="${i}" data-kind="folder"><span class="ms">folder</span>Pasta</span>
+        </div>
+        <label class="field">Caminho, site ou endereço <input data-a="${i}" data-k="target" value="${esc(a.target)}" placeholder="C:\\...\\app.exe  ·  https://site.com  ·  ms-settings:"></label>
+        <label class="field">Argumentos (opcional) <input data-a="${i}" data-k="args" value="${esc(a.args)}"></label>`;
+      break;
+    case 'text':
+      body = `<label class="field">Texto (Enter = nova linha) <textarea data-a="${i}" data-k="text">${esc(a.text)}</textarea></label>`;
+      break;
+    case 'run':
+      body = `<label class="field">Comando <textarea data-a="${i}" data-k="cmd" placeholder="ex: shutdown /a">${esc(a.cmd)}</textarea></label>
+        <label class="toggle${a.show ? ' on' : ''}" data-a="${i}" data-toggle="show"><div class="txt"><b>Mostrar janela</b><span>Deixe desligado para rodar escondido</span></div><div class="switch"></div></label>`;
+      break;
+    case 'wait':
+      body = `<label class="field">Milissegundos (1000 = 1 segundo) <input type="number" data-a="${i}" data-k="ms" data-num value="${esc(a.ms)}" min="0" step="100"></label>`;
+      break;
+    case 'page':
+      body = `<label class="field">Página <select data-a="${i}" data-k="to">${cfg.pages.map(p => `<option${p.name === a.to ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+      break;
+  }
+  return `<div class="act">
+    <div class="act-head"><span class="num">${i + 1}</span><span class="ms t">${t.icon}</span><span class="nm">${t.label}</span>
+      <button data-up="${i}" ${i === 0 ? 'disabled style="opacity:.3"' : ''} title="Subir"><span class="ms">arrow_upward</span></button>
+      <button data-down="${i}" ${i === n - 1 ? 'disabled style="opacity:.3"' : ''} title="Descer"><span class="ms">arrow_downward</span></button>
+      <button class="del" data-del="${i}" title="Remover"><span class="ms">delete</span></button>
+    </div>
+    <div class="act-body">${body}</div>
+  </div>`;
+}
+
+function fillIconGrid(scope, query, cur) {
+  const grid = document.querySelector(`[data-icon-grid="${scope}"]`);
+  if (!grid) return;
+  const q = (query || '').trim().toLowerCase().replace(/\s+/g, '_');
+  let list = q && q !== cur ? ICONS.filter(n => n.includes(q)) : ICONS;
+  if (q && !ICONS.includes(q) && /^[a-z0-9_]+$/.test(q)) list = [q, ...list];
+  grid.innerHTML = list.slice(0, 120).map(n => `<button class="${n === cur ? 'on' : ''}" data-icon="${n}" title="${n}"><span class="ms">${n}</span></button>`).join('');
+}
+
+function bindPanel() {
+  const panel = $('panel');
+  const b = btn();
+  const p = page();
+  const target = b || p;
+  const scope = b ? 'btn' : 'page';
+  const defIcon = b ? 'radio_button_unchecked' : 'grid_view';
+
+  // icones
+  const iconInput = panel.querySelector('[data-icon-input]');
+  const setIcon = name => {
+    target.icon = name;
+    panel.querySelector('.icon-search .cur .ms').textContent = name;
+    if (b) refreshPreview(); else { renderPages(); renderGrid(); changed(); }
+  };
+  fillIconGrid(scope, '', target.icon || defIcon);
+  iconInput.addEventListener('input', () => {
+    const v = iconInput.value.trim().toLowerCase().replace(/\s+/g, '_');
+    fillIconGrid(scope, v, target.icon);
+    if (/^[a-z0-9_]{2,}$/.test(v)) setIcon(v);
+  });
+  panel.querySelector('[data-icon-grid]').addEventListener('click', e => {
+    const bt = e.target.closest('[data-icon]');
+    if (!bt) return;
+    iconInput.value = bt.dataset.icon;
+    setIcon(bt.dataset.icon);
+    panel.querySelectorAll('[data-icon-grid] button').forEach(x => x.classList.toggle('on', x === bt));
+  });
+
+  if (!b) {
+    const nameIn = panel.querySelector('[data-page="name"]');
+    const oldName = p.name;
+    nameIn.addEventListener('input', () => { p.name = nameIn.value; renderPages(); renderGrid(); changed(); });
+    nameIn.addEventListener('change', () => {
+      // mantem os botoes "ir para pagina" apontando para o nome novo
+      cfg.pages.forEach(pg => pg.buttons.forEach(bt => bt.actions.forEach(a => { if (a.type === 'page' && a.to === oldName) a.to = p.name; })));
+      changed();
+    });
+    const del = $('delPage');
+    if (del) del.onclick = () => {
+      if (!confirm(`Excluir a página "${p.name}" e seus ${p.buttons.length} botões?`)) return;
+      cfg.pages.splice(pageIdx, 1);
+      pageIdx = Math.max(0, pageIdx - 1);
+      renderAll();
+    };
+    return;
+  }
+
+  // botao
+  panel.querySelector('[data-btn="label"]').addEventListener('input', e => { b.label = e.target.value; refreshPreview(); });
+  panel.querySelectorAll('[data-color]').forEach(s => s.onclick = () => {
+    b.color = s.dataset.color;
+    panel.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('on', x === s));
+    $('colorPick').value = b.color;
+    refreshPreview();
+  });
+  $('colorPick').addEventListener('input', e => {
+    b.color = e.target.value;
+    panel.querySelectorAll('[data-color]').forEach(x => x.classList.remove('on'));
+    refreshPreview();
+  });
+  $('confirmToggle').onclick = () => {
+    if (b.confirm) delete b.confirm; else b.confirm = true;
+    $('confirmToggle').classList.toggle('on', !!b.confirm);
+    refreshPreview();
+  };
+  $('closeBtn').onclick = () => { btnIdx = null; renderGrid(); renderPanel(); };
+
+  // campos das acoes
+  panel.querySelectorAll('[data-a][data-k]').forEach(inp => {
+    const a = b.actions[+inp.dataset.a];
+    const ev = inp.tagName === 'SELECT' ? 'change' : 'input';
+    inp.addEventListener(ev, () => {
+      if (inp.dataset.num !== undefined) a[inp.dataset.k] = inp.value === '' ? 0 : +inp.value;
+      else if (inp.value === '' && inp.dataset.k === 'args') delete a.args;
+      else a[inp.dataset.k] = inp.value;
+      if (inp.dataset.k === 'target' || inp.dataset.k === 'args') { if (a.app) { delete a.app; } }
+      refreshPreview();
+    });
+  });
+  panel.querySelectorAll('[data-set-k]').forEach(c => c.onclick = () => {
+    b.actions[+c.dataset.a][c.dataset.setK] = c.dataset.v;
+    renderPanel(); refreshPreview();
+  });
+  panel.querySelectorAll('[data-vol]').forEach(c => c.onclick = () => {
+    const a = b.actions[+c.dataset.a];
+    delete a.set; delete a.step; delete a.mute;
+    if (c.dataset.vol === 'step') a.step = 5;
+    if (c.dataset.vol === 'set') a.set = 50;
+    if (c.dataset.vol === 'mute') a.mute = 'toggle';
+    renderPanel(); refreshPreview();
+  });
+  panel.querySelectorAll('[data-toggle]').forEach(c => c.onclick = e => {
+    e.preventDefault();
+    const a = b.actions[+c.dataset.a];
+    if (a[c.dataset.toggle]) delete a[c.dataset.toggle]; else a[c.dataset.toggle] = true;
+    renderPanel(); changed();
+  });
+  panel.querySelectorAll('[data-add]').forEach(c => c.onclick = () => {
+    b.actions.push({ type: c.dataset.add, ...TYPES[c.dataset.add].def() });
+    renderPanel(); refreshPreview();
+    $('panel').scrollTop = 99999;
+  });
+  const move = (i, d) => { const [x] = b.actions.splice(i, 1); b.actions.splice(i + d, 0, x); renderPanel(); changed(); };
+  panel.querySelectorAll('[data-up]').forEach(c => c.onclick = () => move(+c.dataset.up, -1));
+  panel.querySelectorAll('[data-down]').forEach(c => c.onclick = () => move(+c.dataset.down, 1));
+  panel.querySelectorAll('[data-del]').forEach(c => c.onclick = () => { b.actions.splice(+c.dataset.del, 1); renderPanel(); refreshPreview(); });
+
+  // gravar atalho
+  panel.querySelectorAll('[data-rec]').forEach(c => c.onclick = () => {
+    if (recording) { stopRec(); return; }
+    recording = { idx: +c.dataset.rec, el: c };
+    c.classList.add('recording');
+    c.innerHTML = '<span class="ms">keyboard</span>Aperte...';
+  });
+
+  // escolher arquivo / pasta / app
+  panel.querySelectorAll('[data-pick]').forEach(c => c.onclick = async () => {
+    try {
+      toast('Escolha na janela que abriu...', false, 'folder_open');
+      const r = await api('/api/editor/pick?kind=' + c.dataset.kind);
+      if (!r.path) return;
+      const a = b.actions[+c.dataset.pick];
+      delete a.app;
+      if (c.dataset.kind === 'folder') { a.target = 'explorer.exe'; a.args = `"${r.path}"`; }
+      else { a.target = r.path; delete a.args; }
+      if (!b.label || b.label === 'Novo botão') b.label = r.path.split('\\').pop().replace(/\.(exe|lnk|bat|cmd|url|ps1)$/i, '');
+      renderPanel(); refreshPreview();
+    } catch (e) { toast(e.message, true); }
+  });
+  panel.querySelectorAll('[data-pick-app]').forEach(c => c.onclick = () => openApps(+c.dataset.pickApp));
+
+  // rodape
+  $('testBtn').onclick = testButton;
+  $('dupBtn').onclick = () => {
+    page().buttons.splice(btnIdx + 1, 0, clone(b));
+    btnIdx++;
+    renderAll();
+    toast('Botão duplicado', false, 'content_copy');
+  };
+  $('delBtn').onclick = () => {
+    if (!confirm(`Excluir o botão "${b.label}"?`)) return;
+    page().buttons.splice(btnIdx, 1);
+    btnIdx = null;
+    renderAll();
+  };
+}
+
+function stopRec() {
+  if (!recording) return;
+  recording.el.classList.remove('recording');
+  recording.el.innerHTML = '<span class="ms">radio_button_checked</span>Gravar';
+  recording = null;
+}
+
+const CODES = { Enter: 'enter', NumpadEnter: 'enter', Escape: 'esc', Tab: 'tab', Space: 'space', Backspace: 'backspace', Delete: 'delete', Insert: 'insert', Home: 'home', End: 'end', PageUp: 'pgup', PageDown: 'pgdn', ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', PrintScreen: 'printscreen', Comma: 'comma', Period: 'period', Minus: 'minus', Equal: 'equals', Semicolon: 'semicolon', Slash: 'slash', CapsLock: 'capslock', ContextMenu: 'menu', MediaPlayPause: 'play_pause', MediaTrackNext: 'next', MediaTrackPrevious: 'prev', MediaStop: 'stop', AudioVolumeUp: 'vol_up', AudioVolumeDown: 'vol_down', AudioVolumeMute: 'mute' };
+function codeToKey(code) {
+  if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
+  if (/^Digit\d$/.test(code)) return code.slice(5);
+  if (/^F\d{1,2}$/.test(code)) return code.toLowerCase();
+  if (/^Numpad\d$/.test(code)) return 'num' + code.slice(6);
+  return CODES[code] || null;
+}
+
+window.addEventListener('keydown', e => {
+  if (recording) {
+    e.preventDefault();
+    e.stopPropagation();
+    const k = codeToKey(e.code);
+    if (!k) return; // so modificador ainda
+    const combo = [e.ctrlKey && 'ctrl', e.shiftKey && 'shift', e.altKey && 'alt', e.metaKey && 'win', k].filter(Boolean).join('+');
+    btn().actions[recording.idx].keys = combo;
+    stopRec();
+    renderPanel(); refreshPreview();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); save(); }
+}, true);
+
+async function testButton() {
+  const b = btn();
+  const actions = b.actions.filter(a => a.type !== 'page');
+  if (!actions.length) { toast('Esse botão não tem ações para testar', true); return; }
+  const needsFocus = actions.some(a => a.type === 'keys' || a.type === 'text');
+  try {
+    if (needsFocus) {
+      for (let s = 3; s > 0; s--) { toast(`Executando em ${s}s... clique na janela onde quer testar`, false, 'timer'); await new Promise(r => setTimeout(r, 1000)); }
+    }
+    await api('/api/editor/test', { actions });
+    toast('Executado no PC');
+  } catch (e) { toast(e.message, true); }
+}
+
+function addButton() {
+  if (!page()) return;
+  page().buttons.push({ label: 'Novo botão', icon: 'radio_button_unchecked', color: '#7c5cff', actions: [] });
+  btnIdx = page().buttons.length - 1;
+  renderAll();
+  const lbl = document.querySelector('[data-btn="label"]');
+  if (lbl) { lbl.focus(); lbl.select(); }
+}
+
+// ---------- apps instalados ----------
+let apps = null, appsFor = null;
+async function openApps(actionIdx) {
+  appsFor = actionIdx;
+  $('appsModal').classList.add('show');
+  $('appsSearch').value = '';
+  $('appsSearch').focus();
+  if (!apps) {
+    try { apps = (await api('/api/editor/apps')).apps || []; }
+    catch (e) { $('appsList').innerHTML = `<div class="muted" style="padding:12px">Erro: ${esc(e.message)}</div>`; return; }
+  }
+  listApps('');
+}
+function listApps(q) {
+  q = q.trim().toLowerCase();
+  const list = apps.filter(a => !q || a.name.toLowerCase().includes(q)).slice(0, 200);
+  $('appsList').innerHTML = list.length ? list.map((a, i) => `<button class="app-item" data-app="${apps.indexOf(a)}"><span class="ms">apps</span>${esc(a.name)}</button>`).join('')
+    : '<div class="muted" style="padding:12px">Nada encontrado.</div>';
+}
+$('appsSearch').addEventListener('input', e => listApps(e.target.value));
+$('appsClose').onclick = () => $('appsModal').classList.remove('show');
+$('appsModal').addEventListener('click', e => { if (e.target.id === 'appsModal') $('appsModal').classList.remove('show'); });
+$('appsList').addEventListener('click', e => {
+  const it = e.target.closest('[data-app]');
+  if (!it) return;
+  const app = apps[+it.dataset.app];
+  const b = btn();
+  const a = b.actions[appsFor];
+  a.target = 'explorer.exe';
+  a.args = `"shell:AppsFolder\\${app.id}"`;
+  a.app = app.name;
+  if (!b.label || b.label === 'Novo botão') b.label = app.name;
+  $('appsModal').classList.remove('show');
+  renderPanel(); refreshPreview();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('appsModal').classList.remove('show'); });
+
+// ---------- geral ----------
+$('gTitle').addEventListener('input', e => { cfg.title = e.target.value; changed(); });
+$('gCols').addEventListener('input', e => { cfg.columns = Math.max(2, Math.min(8, +e.target.value || 3)); renderGrid(); changed(); });
+$('gColsL').addEventListener('input', e => { cfg.columnsLandscape = Math.max(2, Math.min(10, +e.target.value || 5)); changed(); });
+$('addPage').onclick = () => {
+  let n = 1, name = 'Nova página';
+  while (cfg.pages.some(p => p.name === name)) name = 'Nova página ' + (++n);
+  cfg.pages.push({ name, icon: 'grid_view', buttons: [] });
+  pageIdx = cfg.pages.length - 1;
+  btnIdx = null;
+  view = 'page';
+  renderAll();
+  const inp = document.querySelector('[data-page="name"]');
+  if (inp) { inp.focus(); inp.select(); }
+};
+// ---------- configuracoes ----------
+let view = 'page', info = null, infoT = null;
+
+function applyView() {
+  $('pageView').hidden = view !== 'page';
+  $('settingsView').hidden = view !== 'settings';
+  $('settingsNav').classList.toggle('on', view === 'settings');
+}
+
+function setView(v) {
+  view = v;
+  applyView();
+  clearInterval(infoT);
+  if (v === 'settings') {
+    btnIdx = null;
+    loadInfo();
+    infoT = setInterval(loadInfo, 5000); // acompanha se o IP mudar
+  }
+  renderPages();
+  renderGrid();
+  renderPanel();
+}
+
+async function loadInfo() {
+  try {
+    const r = await api('/api/editor/info');
+    const changedInfo = JSON.stringify(r) !== JSON.stringify(info);
+    info = r;
+    if (changedInfo && view === 'settings') { renderSettings(); renderTutorial(); }
+  } catch (e) { toast('Não consegui ler a rede: ' + e.message, true); }
+}
+
+async function copy(text, what) {
+  try { await navigator.clipboard.writeText(text); toast(what + ' copiado', false, 'content_copy'); }
+  catch { toast('Não consegui copiar', true); }
+}
+
+function renderSettings() {
+  const box = $('settingsView');
+  if (!info) { box.innerHTML = '<div class="muted">Carregando...</div>'; return; }
+  const n = info.net;
+  box.innerHTML = `
+    <div class="set-wrap">
+      <div class="stage-head" style="max-width:none"><h2><span class="ms">settings</span>Configurações</h2></div>
+
+      <div class="card">
+        <div class="card-title">Conexão do celular</div>
+        ${n ? `
+        <div class="ipbox">
+          <div><div class="lbl">IP que o PC Deck está usando</div><div class="ip">${esc(n.ip)}</div></div>
+          ${n.dhcp
+            ? '<span class="badge warn"><span class="ms">sync</span>Automático (DHCP)</span>'
+            : '<span class="badge ok"><span class="ms">lock</span>Fixo no Windows</span>'}
+        </div>
+        ${n.dhcp ? '<div class="note">Esse IP é dado pelo roteador e <b>pode mudar</b> depois que ele reinicia. Se mudar, o celular perde a conexão. Para não mudar mais, faça a <b>reserva de IP</b>; o passo a passo está ao lado. Se já fez, pode ignorar este aviso.</div>' : ''}
+        <div class="kv">
+          <div><span>Porta</span><b>${esc(info.port)}</b></div>
+          <div><span>Conexão</span><b>${n.wifi ? 'Wi-Fi' : 'Cabo (Ethernet)'}</b></div>
+          <div><span>Roteador</span><b>${esc(n.gateway)}</b></div>
+          <div><span>MAC da placa</span><b>${esc(n.mac)}</b></div>
+          <div><span>Nome do PC</span><b>${esc(info.host)}</b></div>
+          <div><span>Placa de rede</span><b>${esc(n.adapter)}</b></div>
+        </div>` : '<div class="note">Nenhuma rede conectada. Conecte o PC ao Wi-Fi ou ao cabo.</div>'}
+        <div class="field">Endereço para abrir no celular</div>
+        <div class="copyrow">
+          <input class="inp" readonly value="${esc(info.url)}">
+          <button class="btn sm" id="copyUrl"><span class="ms">content_copy</span>Copiar</button>
+          <button class="btn sm" id="showQr"><span class="ms">qr_code_2</span>QR</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Inicialização</div>
+        <div class="toggle${info.autostart ? ' on' : ''}" id="autoToggle">
+          <div class="txt"><b>Iniciar junto com o Windows</b><span>O PC Deck abre sozinho, escondido perto do relógio</span></div>
+          <div class="switch"></div>
+        </div>
+      </div>
+
+      <div class="muted" style="text-align:center">PC Deck versão ${esc(info.version)}</div>
+    </div>`;
+  $('copyUrl').onclick = () => copy(info.url, 'Endereço');
+  $('showQr').onclick = () => window.open('/qr', '_blank', 'width=520,height=640');
+  $('autoToggle').onclick = async () => {
+    try {
+      const r = await api('/api/editor/autostart', { on: !info.autostart });
+      info.autostart = r.autostart;
+      renderSettings();
+      toast(r.autostart ? 'Vai iniciar com o Windows' : 'Não vai mais iniciar com o Windows');
+    } catch (e) { toast(e.message, true); }
+  };
+}
+
+function renderTutorial() {
+  const panel = $('panel');
+  const n = info && info.net;
+  if (!n) { panel.innerHTML = '<h3><span class="ms">router</span>Fixar o IP</h3><div class="muted">Carregando...</div>'; return; }
+  panel.innerHTML = `
+    <h3><span class="ms">router</span>Fixar o IP no roteador</h3>
+    <div class="muted">Assim o endereço do celular nunca muda. Você faz isso uma vez só, no roteador, e não mexe em nada do Windows.</div>
+    <div class="card">
+      <div class="steps">
+        <div class="step"><div>
+          <h4>Abra a página do roteador</h4>
+          <p>Usuário e senha costumam estar na <b>etiqueta embaixo do roteador</b>.</p>
+          <button class="btn sm" id="openRouter"><span class="ms">open_in_new</span>Abrir http://${esc(n.gateway)}</button>
+        </div></div>
+
+        <div class="step"><div>
+          <h4>Procure a reserva de IP</h4>
+          <p>O nome muda conforme a marca. Geralmente fica em <b>Rede</b>, <b>LAN</b> ou <b>DHCP</b>. Procure algo como:</p>
+          <div class="chips">
+            <span class="chip">Reserva de DHCP</span><span class="chip">Reserva de endereço</span><span class="chip">IP fixo</span>
+            <span class="chip">Address Reservation</span><span class="chip">Static Lease</span><span class="chip">DHCP Binding</span>
+          </div>
+        </div></div>
+
+        <div class="step"><div>
+          <h4>Adicione este PC</h4>
+          <p>Clique em adicionar e preencha com estes dados:</p>
+          <div class="val"><span>MAC</span><b>${esc(n.mac)}</b><button class="btn sm icon" data-copy="${esc(n.mac)}" data-what="MAC" title="Copiar"><span class="ms">content_copy</span></button></div>
+          <div class="val"><span>IP</span><b>${esc(n.ip)}</b><button class="btn sm icon" data-copy="${esc(n.ip)}" data-what="IP" title="Copiar"><span class="ms">content_copy</span></button></div>
+          <p style="margin-top:6px">Se pedir um nome ou descrição, use <b>PC Deck</b>. Alguns roteadores mostram uma lista de aparelhos conectados: aí é só escolher <b>${esc(info.host)}</b>.</p>
+        </div></div>
+
+        <div class="step"><div>
+          <h4>Salve</h4>
+          <p>Se o roteador pedir, reinicie ele. Pronto: este PC vai receber sempre o IP <b>${esc(n.ip)}</b>.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="note">${n.wifi
+      ? 'Você está no <b>Wi-Fi</b>. Se um dia ligar o PC no cabo, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.'
+      : 'Você está no <b>cabo</b>. Se um dia usar o Wi-Fi do PC, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.'}</div>`;
+  $('openRouter').onclick = () => window.open('http://' + n.gateway, '_blank');
+  panel.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy, b.dataset.what));
+}
+
+$('settingsNav').onclick = () => setView('settings');
+$('save').onclick = save;
+$('revert').onclick = () => { if (confirm('Descartar as alterações não salvas?')) load(); };
+$('qrBtn').onclick = () => window.open('/qr', '_blank', 'width=520,height=640');
+window.addEventListener('beforeunload', e => { if (cfg && isDirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+load().catch(e => toast('Não consegui carregar o config: ' + e.message, true));
+</script>
+</body>
+</html>
