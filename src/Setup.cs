@@ -47,7 +47,7 @@ static class Setup {
         File.Copy(Application.ExecutablePath, Paths.InstalledExe, true);
         // botoes e token ficam em %APPDATA%: uma atualizacao nao mexe neles
         Directory.CreateDirectory(Paths.Data);
-        if (!File.Exists(Paths.Config)) File.WriteAllBytes(Paths.Config, Res.Bytes("default-config.json"));
+        if (!File.Exists(Paths.Config)) File.WriteAllBytes(Paths.Config, Res.DefaultConfig());
 
         Shortcut(Path.Combine(Programs, "PC Deck.lnk"));
         string deskLnk = Path.Combine(Desktop, "PC Deck.lnk");
@@ -73,7 +73,7 @@ static class Setup {
     }
 
     public static void Uninstall() {
-        if (MessageBox.Show("Desinstalar o PC Deck deste computador?", "PC Deck", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+        if (MessageBox.Show(L.T("Desinstalar o PC Deck deste computador?", "Uninstall PC Deck from this computer?"), "PC Deck", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
 
         StopRunning();
         AutoStart = false;
@@ -81,7 +81,7 @@ static class Setup {
         TryDelete(Path.Combine(Desktop, "PC Deck.lnk"));
         try { Registry.CurrentUser.DeleteSubKeyTree(UninstallKey, false); } catch { }
 
-        bool wipe = MessageBox.Show("Apagar também seus botões e configurações?\n\nSe escolher Não, eles voltam quando você instalar de novo.",
+        bool wipe = MessageBox.Show(L.T("Apagar também seus botões e configurações?\n\nSe escolher Não, eles voltam quando você instalar de novo.", "Also delete your buttons and settings?\n\nIf you choose No, they come back when you install again."),
             "PC Deck", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes;
 
         // o exe nao consegue apagar a si mesmo: o cmd apaga a pasta depois que ele fecha
@@ -89,7 +89,7 @@ static class Setup {
         if (wipe) cmd += " & rmdir /s /q \"" + Paths.Data + "\"";
         Hidden("cmd.exe", cmd, false);
 
-        MessageBox.Show("PC Deck removido.", "PC Deck", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(L.T("PC Deck removido.", "PC Deck removed."), "PC Deck", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     static void StopRunning() {
@@ -110,7 +110,7 @@ static class Setup {
         s.TargetPath = Paths.InstalledExe;
         s.WorkingDirectory = Paths.InstallDir;
         s.IconLocation = Paths.InstalledExe + ",0";
-        s.Description = "Painel de botões no celular para controlar o PC";
+        s.Description = L.T("Painel de botões no celular para controlar o PC", "Phone button panel to control the PC");
         s.Save();
     }
 
@@ -131,7 +131,7 @@ class InstallerForm : Form {
 
     public InstallerForm() {
         bool update = Setup.IsInstalled;
-        Text = update ? "Atualizar PC Deck" : "Instalar PC Deck";
+        Text = update ? L.T("Atualizar PC Deck", "Update PC Deck") : L.T("Instalar PC Deck", "Install PC Deck");
         Icon = Res.AppIcon(new Size(32, 32));
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -146,28 +146,28 @@ class InstallerForm : Form {
         var header = new Panel { Dock = DockStyle.Top, Height = 96, BackColor = Color.FromArgb(18, 22, 31) };
         var logo = new PictureBox { Image = Res.AppIcon(new Size(64, 64)).ToBitmap(), SizeMode = PictureBoxSizeMode.Zoom, Bounds = new Rectangle(24, 20, 56, 56), BackColor = Color.Transparent };
         var title = new Label { Text = "PC Deck", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 18F), AutoSize = true, Location = new Point(92, 20), BackColor = Color.Transparent };
-        var ver = new Label { Text = "versão " + Program.Version, ForeColor = Color.FromArgb(138, 147, 166), AutoSize = true, Location = new Point(96, 56), BackColor = Color.Transparent };
+        var ver = new Label { Text = L.T("versão ", "version ") + Program.Version, ForeColor = Color.FromArgb(138, 147, 166), AutoSize = true, Location = new Point(96, 56), BackColor = Color.Transparent };
         header.Controls.AddRange(new Control[] { logo, title, ver });
 
         var desc = new Label {
             Text = update
-                ? "Uma versão do PC Deck já está instalada. Ela será atualizada e seus botões serão mantidos."
-                : "Transforma seu celular num painel de botões para controlar o PC: mídia, volume, apps, atalhos e macros.",
+                ? L.T("Uma versão do PC Deck já está instalada. Ela será atualizada e seus botões serão mantidos.", "PC Deck is already installed. It will be updated and your buttons will be kept.")
+                : L.T("Transforma seu celular num painel de botões para controlar o PC: mídia, volume, apps, atalhos e macros.", "Turns your phone into a button panel to control the PC: media, volume, apps, shortcuts and macros."),
             Location = new Point(24, 112), Size = new Size(452, 44)
         };
 
-        chkAuto = new CheckBox { Text = "Iniciar junto com o Windows", Checked = !update || Setup.AutoStart, AutoSize = true, Location = new Point(26, 166) };
-        chkDesk = new CheckBox { Text = "Criar atalho na área de trabalho", Checked = !update || Setup.HasDesktopShortcut, AutoSize = true, Location = new Point(26, 194) };
+        chkAuto = new CheckBox { Text = L.T("Iniciar junto com o Windows", "Start with Windows"), Checked = !update || Setup.AutoStart, AutoSize = true, Location = new Point(26, 166) };
+        chkDesk = new CheckBox { Text = L.T("Criar atalho na área de trabalho", "Create desktop shortcut"), Checked = !update || Setup.HasDesktopShortcut, AutoSize = true, Location = new Point(26, 194) };
 
         var where = new Label {
-            Text = "Instala só para o seu usuário, sem precisar de administrador:\n" + Paths.InstallDir,
+            Text = L.T("Instala só para o seu usuário, sem precisar de administrador:\n", "Installs for your user only, no administrator needed:\n") + Paths.InstallDir,
             ForeColor = Color.Gray, Font = new Font("Segoe UI", 8.5F), Location = new Point(24, 228), Size = new Size(452, 36)
         };
 
         status = new Label { ForeColor = Color.FromArgb(92, 62, 230), AutoSize = true, Location = new Point(24, 290) };
-        btnCancel = new Button { Text = "Cancelar", Size = new Size(96, 32), Location = new Point(380, 282), DialogResult = DialogResult.Cancel };
+        btnCancel = new Button { Text = L.T("Cancelar", "Cancel"), Size = new Size(96, 32), Location = new Point(380, 282), DialogResult = DialogResult.Cancel };
         btnInstall = new Button {
-            Text = update ? "Atualizar" : "Instalar", Size = new Size(110, 32), Location = new Point(262, 282),
+            Text = update ? L.T("Atualizar", "Update") : L.T("Instalar", "Install"), Size = new Size(110, 32), Location = new Point(262, 282),
             BackColor = Color.FromArgb(124, 92, 255), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI Semibold", 9.5F)
         };
         btnInstall.FlatAppearance.BorderSize = 0;
@@ -180,14 +180,14 @@ class InstallerForm : Form {
 
     void DoInstall() {
         btnInstall.Enabled = btnCancel.Enabled = false;
-        status.Text = "Instalando...";
+        status.Text = L.T("Instalando...", "Installing...");
         Refresh();
         try {
             Setup.Install(chkAuto.Checked, chkDesk.Checked);
             Close();
         } catch (Exception ex) {
             status.Text = "";
-            MessageBox.Show("Não foi possível instalar:\n" + ex.Message, "PC Deck", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(L.T("Não foi possível instalar:\n", "Could not install:\n") + ex.Message, "PC Deck", MessageBoxButtons.OK, MessageBoxIcon.Error);
             btnInstall.Enabled = btnCancel.Enabled = true;
         }
     }

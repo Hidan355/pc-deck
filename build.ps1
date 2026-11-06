@@ -89,6 +89,7 @@ $resources = @(
     "/resource:$Root\web\qr.html,qr.html",
     "/resource:$Root\web\manifest.json,manifest.json",
     "/resource:$Root\config.json,default-config.json",
+    "/resource:$Root\config.en.json,default-config.en.json",
     "/resource:$Root\deck.ico,deck.ico"
 )
 $refs = 'System.dll', 'System.Core.dll', 'System.Drawing.dll', 'System.Windows.Forms.dll', 'System.Web.Extensions.dll',

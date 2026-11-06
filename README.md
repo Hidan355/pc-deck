@@ -29,6 +29,7 @@
 - **Atualização ao vivo**: salvou no editor, o celular atualiza sozinho
 - **App de bandeja** que inicia com o Windows, sem janela aberta
 - **Tela de configurações** com o IP em uso e um passo a passo para fixar o IP no roteador
+- **Português e inglês**: troque em *Configurações → Idioma*; vale para o editor, o celular e o menu do ícone
 - **Leve**: um único `.exe` de ~240 KB, sem dependências (usa o .NET Framework que já vem no Windows)
 
 ## Instalação
@@ -88,6 +89,7 @@ Os dados ficam em `%APPDATA%\PC Deck`:
 | `config.json` | Páginas e botões. A versão anterior fica em `config.bak.json`. |
 | `token.txt` | Chave de acesso do celular. Apague para gerar outra; aí precisa escanear o QR de novo. |
 | `log.txt` | Registro de toques e erros. |
+| `language.txt` | Idioma escolhido (`pt` ou `en`). Sem ele, o PC Deck segue o idioma do Windows. |
 
 ## Segurança
 
@@ -116,9 +118,19 @@ src/Setup.cs     instalador e desinstalador (por usuário, sem admin)
 web/index.html   painel do celular
 web/editor.html  editor dos botões
 web/qr.html      página do QR code
-config.json      botões padrão de uma instalação nova
+config.json      botões padrão de uma instalação nova (config.en.json em inglês)
 build.ps1        gera o ícone e compila o .exe (com a pasta web embutida)
 ```
+
+## English
+
+PC Deck turns a spare phone into a **Stream Deck-style** panel to control your Windows PC over Wi-Fi: media, volume, apps, keyboard shortcuts and macros, with a visual editor on the PC. The app is available in **English and Portuguese** (*Settings → Language*). On a new install it follows the Windows language.
+
+1. Download `PCDeck-Setup.exe` from [Releases](../../releases) and run it. No administrator rights needed.
+   - The executable is not signed. If Windows shows *"Windows protected your PC"*, click **More info → Run anyway**.
+2. Allow PC Deck through the **firewall** on **private networks**.
+3. Scan the QR code with your phone (same Wi-Fi as the PC).
+4. Click the tray icon near the clock to open the button editor.
 
 ## Licença
 

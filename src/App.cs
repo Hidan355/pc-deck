@@ -24,13 +24,13 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("PC Deck")]
 [assembly: AssemblyProduct("PC Deck")]
 [assembly: AssemblyDescription("Painel estilo Stream Deck no celular")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 namespace PCDeck {
 
 static class Program {
-    public const string Version = "1.0.0";
+    public const string Version = "1.1.0";
 
     [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
 
@@ -84,6 +84,30 @@ static class Paths {
     public static string Backup { get { return Path.Combine(Data, "config.bak.json"); } }
     public static string Token { get { return Path.Combine(Data, "token.txt"); } }
     public static string LogFile { get { return Path.Combine(Data, "log.txt"); } }
+    public static string LanguageFile { get { return Path.Combine(Data, "language.txt"); } }
+}
+
+// ---------- idioma (pt / en): escolhido no editor; sem escolha, segue o Windows ----------
+static class L {
+    public static string Current {
+        get {
+            try {
+                if (File.Exists(Paths.LanguageFile)) {
+                    string v = File.ReadAllText(Paths.LanguageFile).Trim().ToLowerInvariant();
+                    if (v == "pt" || v == "en") return v;
+                }
+            } catch { }
+            return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "pt" ? "pt" : "en";
+        }
+        set {
+            Directory.CreateDirectory(Paths.Data);
+            File.WriteAllText(Paths.LanguageFile, value == "en" ? "en" : "pt", Encoding.ASCII);
+        }
+    }
+
+    public static bool En { get { return Current == "en"; } }
+
+    public static string T(string pt, string en) { return En ? en : pt; }
 }
 
 static class Log {
@@ -117,6 +141,16 @@ static class Res {
     public static string Text(string name) { return Encoding.UTF8.GetString(Bytes(name)); }
 
     public static Icon AppIcon(Size size) { return new Icon(new MemoryStream(Bytes("deck.ico")), size); }
+
+    // botoes padrao de uma instalacao nova, no idioma atual
+    public static byte[] DefaultConfig() { return Bytes(L.En ? "default-config.en.json" : "default-config.json"); }
+
+    // paginas web com idioma, versao e dados trocados no servidor
+    public static string Page(string name, params string[] pairs) {
+        string html = Text(name).Replace("{{LANG}}", L.Current).Replace("{{VERSION}}", Program.Version);
+        for (int i = 0; i + 1 < pairs.Length; i += 2) html = html.Replace(pairs[i], pairs[i + 1]);
+        return html;
+    }
 }
 
 // ---------- JSON (JavaScriptSerializer devolve Dictionary/object[]) ----------
@@ -250,19 +284,20 @@ class DeckServer {
 
     public string Start() {
         Directory.CreateDirectory(Paths.Data);
-        if (!File.Exists(Paths.Config)) File.WriteAllBytes(Paths.Config, Res.Bytes("default-config.json"));
+        if (!File.Exists(Paths.Config)) File.WriteAllBytes(Paths.Config, Res.DefaultConfig());
         if (!File.Exists(Paths.Token)) {
             const string chars = "abcdefghijkmnpqrstuvwxyz23456789";
             var rnd = new Random();
             File.WriteAllText(Paths.Token, new string(Enumerable.Range(0, 12).Select(i => chars[rnd.Next(chars.Length)]).ToArray()), Encoding.ASCII);
         }
         Token = File.ReadAllText(Paths.Token).Trim();
-        try { Config(); } catch (Exception ex) { return "O arquivo de botões (config.json) está com erro:\n" + ex.Message; }
+        try { Config(); } catch (Exception ex) { return L.T("O arquivo de botões (config.json) está com erro:\n", "The buttons file (config.json) has an error:\n") + ex.Message; }
         Port = J.Int(J.Get(cfg, "port"), 8765);
 
         listener = new TcpListener(IPAddress.Any, Port);
         try { listener.Start(); } catch (SocketException) {
-            return "A porta " + Port + " já está sendo usada por outro programa.\n\nFeche esse programa ou troque \"port\" no config.json (menu do ícone → Abrir pasta dos dados).";
+            return L.T("A porta " + Port + " já está sendo usada por outro programa.\n\nFeche esse programa ou troque \"port\" no config.json (menu do ícone → Abrir pasta dos dados).",
+                       "Port " + Port + " is already in use by another program.\n\nClose that program or change \"port\" in config.json (tray menu → Open data folder).");
         }
         running = true;
         DeckSys.Cpu();
@@ -327,15 +362,15 @@ class DeckServer {
         bool authed = req.H("X-Token") == Token || req.Q("t") == Token;
 
         switch (req.Path) {
-            case "/": Send(c, 200, "text/html; charset=utf-8", Res.Bytes("index.html")); return;
+            case "/": Html(c, Res.Page("index.html")); return;
             case "/manifest.json": Send(c, 200, "application/manifest+json", Res.Bytes("manifest.json")); return;
             case "/qr":
-                if (!isLocal) { Text(c, 403, "text/plain", "Somente no proprio PC."); return; }
-                Html(c, Res.Text("qr.html").Replace("{{URL}}", PhoneUrl));
+                if (!isLocal) { Text(c, 403, "text/plain", "Forbidden"); return; }
+                Html(c, Res.Page("qr.html", "{{URL}}", PhoneUrl));
                 return;
             case "/editor":
-                if (!isLocal) { Text(c, 403, "text/plain", "Somente no proprio PC."); return; }
-                Html(c, Res.Text("editor.html").Replace("{{TOKEN}}", Token).Replace("{{URL}}", PhoneUrl));
+                if (!isLocal) { Text(c, 403, "text/plain", "Forbidden"); return; }
+                Html(c, Res.Page("editor.html", "{{TOKEN}}", Token, "{{URL}}", PhoneUrl));
                 return;
         }
 
@@ -360,7 +395,7 @@ class DeckServer {
                 object vol = null, muted = null;
                 try { vol = DeckAudio.Get(); muted = DeckAudio.Muted(); } catch { }
                 Config();
-                Json(c, 200, J.O("ok", true, "cfgv", cfgStamp.Ticks.ToString(), "cpu", DeckSys.Cpu(), "ram", DeckSys.Ram(),
+                Json(c, 200, J.O("ok", true, "cfgv", cfgStamp.Ticks.ToString(), "lang", L.Current, "cpu", DeckSys.Cpu(), "ram", DeckSys.Ram(),
                                  "volume", vol, "muted", muted, "media", media.Now()));
                 break;
             }
@@ -432,6 +467,14 @@ class DeckServer {
                                  "autostart", Setup.AutoStart, "version", Program.Version));
                 break;
             }
+            case "/api/editor/language": {
+                string lang = J.Str(J.Js.DeserializeObject(req.Body), "lang");
+                if (lang != "pt" && lang != "en") { Json(c, 400, J.O("ok", false, "error", "lang")); return; }
+                L.Current = lang;
+                Log.Write("idioma: " + lang);
+                Json(c, 200, J.O("ok", true, "lang", lang));
+                break;
+            }
             case "/api/editor/autostart": {
                 Setup.AutoStart = J.Get(J.Js.DeserializeObject(req.Body), "on") as bool? == true;
                 Json(c, 200, J.O("ok", true, "autostart", Setup.AutoStart));
@@ -456,7 +499,9 @@ class DeckServer {
             if (folder) {
                 using (var dlg = new FolderBrowserDialog()) return dlg.ShowDialog(owner) == DialogResult.OK ? dlg.SelectedPath : null;
             }
-            using (var dlg = new OpenFileDialog { Filter = "Programas e atalhos|*.exe;*.lnk;*.bat;*.cmd;*.url;*.ps1|Todos os arquivos|*.*", DereferenceLinks = false }) {
+            string filter = L.T("Programas e atalhos|*.exe;*.lnk;*.bat;*.cmd;*.url;*.ps1|Todos os arquivos|*.*",
+                                "Programs and shortcuts|*.exe;*.lnk;*.bat;*.cmd;*.url;*.ps1|All files|*.*");
+            using (var dlg = new OpenFileDialog { Filter = filter, DereferenceLinks = false }) {
                 return dlg.ShowDialog(owner) == DialogResult.OK ? dlg.FileName : null;
             }
         }
@@ -534,7 +579,7 @@ static class Actions {
                 break;
             }
             case "page": break; // tratado no celular
-            default: throw new Exception("Tipo de ação desconhecido: " + type);
+            default: throw new Exception(L.T("Tipo de ação desconhecido: ", "Unknown action type: ") + type);
         }
     }
 }
@@ -559,21 +604,13 @@ class TrayApp : ApplicationContext {
             return;
         }
 
+        // o menu e montado a cada abertura: assim segue o idioma escolhido no editor
         var menu = new ContextMenuStrip();
-        var open = new ToolStripMenuItem("Abrir editor dos botões", null, (s, e) => OpenEditor());
-        open.Font = new Font(open.Font, FontStyle.Bold);
-        menu.Items.Add(open);
-        menu.Items.Add(new ToolStripMenuItem("Conectar celular (QR code)", null, (s, e) => OpenQr()));
-        menu.Items.Add(new ToolStripSeparator());
-        var auto = new ToolStripMenuItem("Iniciar com o Windows") { Checked = Setup.AutoStart };
-        auto.Click += (s, e) => { Setup.AutoStart = !Setup.AutoStart; auto.Checked = Setup.AutoStart; };
-        menu.Items.Add(auto);
-        menu.Items.Add(new ToolStripMenuItem("Abrir pasta dos dados", null, (s, e) => Process.Start("explorer.exe", "\"" + Paths.Data + "\"")));
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(new ToolStripMenuItem("Sair do PC Deck", null, (s, e) => Quit()));
+        menu.Items.Add(new ToolStripSeparator()); // sem itens o Opening nao dispara
+        menu.Opening += (s, e) => { BuildMenu(menu); e.Cancel = false; };
 
         tray.Icon = Res.AppIcon(SystemInformation.SmallIconSize);
-        tray.Text = "PC Deck - rodando";
+        tray.Text = L.T("PC Deck - rodando", "PC Deck - running");
         tray.ContextMenuStrip = menu;
         tray.MouseClick += (s, e) => { if (e.Button == MouseButtons.Left) OpenEditor(); };
         tray.Visible = true;
@@ -584,6 +621,22 @@ class TrayApp : ApplicationContext {
 
         if (mode == "--welcome") Welcome();
         else if (mode != "--background") OpenEditor();
+    }
+
+    void BuildMenu(ContextMenuStrip menu) {
+        menu.Items.Clear();
+        var open = new ToolStripMenuItem(L.T("Abrir editor dos botões", "Open button editor"), null, (s, e) => OpenEditor());
+        open.Font = new Font(open.Font, FontStyle.Bold);
+        menu.Items.Add(open);
+        menu.Items.Add(new ToolStripMenuItem(L.T("Conectar celular (QR code)", "Connect phone (QR code)"), null, (s, e) => OpenQr()));
+        menu.Items.Add(new ToolStripSeparator());
+        var auto = new ToolStripMenuItem(L.T("Iniciar com o Windows", "Start with Windows")) { Checked = Setup.AutoStart };
+        auto.Click += (s, e) => { Setup.AutoStart = !Setup.AutoStart; };
+        menu.Items.Add(auto);
+        menu.Items.Add(new ToolStripMenuItem(L.T("Abrir pasta dos dados", "Open data folder"), null, (s, e) => Process.Start("explorer.exe", "\"" + Paths.Data + "\"")));
+        menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add(new ToolStripMenuItem(L.T("Sair do PC Deck", "Quit PC Deck"), null, (s, e) => Quit()));
+        tray.Text = L.T("PC Deck - rodando", "PC Deck - running");
     }
 
     void Listen(string name, Action act) {
@@ -598,8 +651,9 @@ class TrayApp : ApplicationContext {
     }
 
     void Welcome() {
-        tray.ShowBalloonTip(8000, "PC Deck está rodando",
-            "Ele fica no ícone perto do relógio. Escaneie o QR code com o celular para conectar.", ToolTipIcon.Info);
+        tray.ShowBalloonTip(8000, L.T("PC Deck está rodando", "PC Deck is running"),
+            L.T("Ele fica no ícone perto do relógio. Escaneie o QR code com o celular para conectar.",
+                "It lives in the icon near the clock. Scan the QR code with your phone to connect."), ToolTipIcon.Info);
         OpenQr();
     }
 

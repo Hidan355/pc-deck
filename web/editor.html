@@ -262,38 +262,38 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
     <div class="brand"><span class="logo ms">grid_view</span>PC Deck <span class="sub">Editor</span></div>
     <div class="spacer"></div>
     <span class="status" id="status"></span>
-    <button class="btn" id="qrBtn" title="Mostrar QR do celular"><span class="ms">qr_code_2</span><span>Celular</span></button>
-    <button class="btn" id="revert" disabled><span class="ms">undo</span>Descartar</button>
-    <button class="btn primary" id="save" disabled><span class="ms">save</span>Salvar <span class="kbd" style="opacity:.6;font-size:12px">Ctrl+S</span></button>
+    <button class="btn" id="qrBtn" data-i18n-title="Mostrar QR do celular"><span class="ms">qr_code_2</span><span data-i18n>Celular</span></button>
+    <button class="btn" id="revert" disabled><span class="ms">undo</span><span data-i18n>Descartar</span></button>
+    <button class="btn primary" id="save" disabled><span class="ms">save</span><span data-i18n>Salvar</span> <span class="kbd" style="opacity:.6;font-size:12px">Ctrl+S</span></button>
   </header>
 
   <aside class="side">
-    <div class="sec-title">Páginas</div>
+    <div class="sec-title" data-i18n>Páginas</div>
     <div id="pages"></div>
-    <button class="btn add" id="addPage"><span class="ms">add</span>Nova página</button>
+    <button class="btn add" id="addPage"><span class="ms">add</span><span data-i18n>Nova página</span></button>
 
-    <div class="sec-title gap">Geral</div>
-    <label class="field">Nome do painel <input id="gTitle"></label>
+    <div class="sec-title gap" data-i18n>Geral</div>
+    <label class="field"><span data-i18n>Nome do painel</span> <input id="gTitle"></label>
     <div class="row2" style="padding:0 6px">
-      <label class="field" style="padding:0">Colunas em pé <input type="number" id="gCols" min="2" max="8"></label>
-      <label class="field" style="padding:0">Colunas deitado <input type="number" id="gColsL" min="2" max="10"></label>
+      <label class="field" style="padding:0"><span data-i18n>Colunas em pé</span> <input type="number" id="gCols" min="2" max="8"></label>
+      <label class="field" style="padding:0"><span data-i18n>Colunas deitado</span> <input type="number" id="gColsL" min="2" max="10"></label>
     </div>
 
-    <div class="sec-title gap">Sistema</div>
-    <div class="pg" id="settingsNav"><span class="ms">settings</span><span class="nm">Configurações</span></div>
+    <div class="sec-title gap" data-i18n>Sistema</div>
+    <div class="pg" id="settingsNav"><span class="ms">settings</span><span class="nm" data-i18n>Configurações</span></div>
 
     <div class="signature">
       <div class="tag">
         <span class="glitch" data-text="BY TH">BY TH</span>
         <span class="bar"></span>
-        <span class="sub">PC//DECK v1.0</span>
+        <span class="sub">PC//DECK v{{VERSION}}</span>
       </div>
     </div>
   </aside>
 
   <main class="stage">
     <div class="view" id="pageView">
-      <div class="stage-head"><h2 id="pageTitle"></h2><span class="hint">Clique para editar · arraste para reordenar</span></div>
+      <div class="stage-head"><h2 id="pageTitle"></h2><span class="hint" data-i18n>Clique para editar · arraste para reordenar</span></div>
       <div class="phone"><div class="grid" id="grid"></div></div>
     </div>
     <div class="view" id="settingsView" hidden></div>
@@ -305,10 +305,10 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 <div class="modal" id="appsModal">
   <div class="modal-box">
     <div class="modal-head">
-      <input class="inp" id="appsSearch" placeholder="Buscar app instalado...">
+      <input class="inp" id="appsSearch" data-i18n-ph="Buscar app instalado...">
       <button class="btn icon sm" id="appsClose"><span class="ms">close</span></button>
     </div>
-    <div class="app-list" id="appsList"><div class="muted" style="padding:12px">Carregando...</div></div>
+    <div class="app-list" id="appsList"><div class="muted" style="padding:12px" data-i18n>Carregando...</div></div>
   </div>
 </div>
 
@@ -317,6 +317,167 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 <script>
 const TOKEN = '{{TOKEN}}';
 const PHONE_URL = '{{URL}}';
+
+// ---------- idioma ----------
+// o servidor troca {{LANG}} por "pt" ou "en"; aberto direto do disco, segue o navegador
+const LANG = /^(pt|en)$/.test('{{LANG}}') ? '{{LANG}}' : (navigator.language.toLowerCase().startsWith('pt') ? 'pt' : 'en');
+const EN = {
+  'Mostrar QR do celular': 'Show phone QR code',
+  'Celular': 'Phone',
+  'Descartar': 'Discard',
+  'Salvar': 'Save',
+  'Páginas': 'Pages',
+  'Nova página': 'New page',
+  'Geral': 'General',
+  'Nome do painel': 'Panel name',
+  'Colunas em pé': 'Portrait cols',
+  'Colunas deitado': 'Landscape cols',
+  'Sistema': 'System',
+  'Configurações': 'Settings',
+  'Clique para editar · arraste para reordenar': 'Click to edit · drag to reorder',
+  'Buscar app instalado...': 'Search installed apps...',
+  'Carregando...': 'Loading...',
+  'Erro {0}': 'Error {0}',
+  'Alterações não salvas': 'Unsaved changes',
+  'Tudo salvo': 'All saved',
+  'Salvo · o celular já atualizou': 'Saved · phone already updated',
+  'Salvo! O celular atualiza sozinho.': 'Saved! The phone updates by itself.',
+  'Erro ao salvar: {0}': 'Error saving: {0}',
+  'sem ação': 'no action',
+  'Sem páginas': 'No pages',
+  'Novo botão': 'New button',
+  'Movido para "{0}"': 'Moved to "{0}"',
+  'Crie uma página para começar.': 'Create a page to get started.',
+  'Buscar ícone (em inglês: music, folder...)': 'Search icon (music, folder...)',
+  'Mais ícones em {0}: copie o nome e cole acima.': 'More icons at {0}: copy the name and paste it above.',
+  'Página': 'Page',
+  'Nome': 'Name',
+  'Ícone da aba': 'Tab icon',
+  'Clique num botão da grade para editar, ou em <b>+ Novo botão</b>. Arraste um botão para uma página da lateral para mover.':
+    'Click a button in the grid to edit it, or <b>+ New button</b>. Drag a button onto a page in the sidebar to move it.',
+  'Excluir página': 'Delete page',
+  'Botão': 'Button',
+  'Fechar': 'Close',
+  'Texto': 'Label',
+  'Cor': 'Color',
+  'Outra cor': 'Other color',
+  'Ícone': 'Icon',
+  'Segurar para confirmar': 'Hold to confirm',
+  'Para ações perigosas, como desligar ou fechar': 'For risky actions, like shutting down or closing',
+  'Ações · executadas em ordem': 'Actions · run in order',
+  'Nenhuma ação ainda. Escolha abaixo o que o botão faz. Com várias ações ele vira uma macro.':
+    'No actions yet. Choose below what the button does. With several actions it becomes a macro.',
+  'Adicionar ação': 'Add action',
+  'Testar no PC': 'Test on PC',
+  'Duplicar': 'Duplicate',
+  'Excluir': 'Delete',
+  'Atalho de teclado': 'Keyboard shortcut',
+  'Controle de mídia': 'Media control',
+  'Volume': 'Volume',
+  'Abrir app / site / pasta': 'Open app / site / folder',
+  'Digitar texto': 'Type text',
+  'Comando PowerShell': 'PowerShell command',
+  'Esperar': 'Wait',
+  'Ir para página': 'Go to page',
+  'Anterior': 'Previous',
+  'Próxima': 'Next',
+  'Parar': 'Stop',
+  'Gravar': 'Record',
+  'Aperte...': 'Press...',
+  'ex: ctrl+shift+s': 'e.g. ctrl+shift+s',
+  'ex: shutdown /a': 'e.g. shutdown /a',
+  'Clique em Gravar e aperte o atalho. Alguns (como os com a tecla Windows) precisam ser digitados à mão: <code>win+d</code>.':
+    'Click Record and press the shortcut. Some (like ones with the Windows key) must be typed by hand: <code>win+d</code>.',
+  'Aumentar / diminuir': 'Raise / lower',
+  'Definir nível': 'Set level',
+  'Mudo liga/desliga': 'Toggle mute',
+  'Quanto (use negativo para diminuir)': 'Amount (negative to lower)',
+  'Nível (0 a 100)': 'Level (0 to 100)',
+  'Apps instalados': 'Installed apps',
+  'Arquivo / programa': 'File / program',
+  'Pasta': 'Folder',
+  'Caminho, site ou endereço': 'Path, website or address',
+  'Argumentos (opcional)': 'Arguments (optional)',
+  'Texto (Enter = nova linha)': 'Text (Enter = new line)',
+  'Comando': 'Command',
+  'Mostrar janela': 'Show window',
+  'Deixe desligado para rodar escondido': 'Leave off to run hidden',
+  'Milissegundos (1000 = 1 segundo)': 'Milliseconds (1000 = 1 second)',
+  'Subir': 'Move up',
+  'Descer': 'Move down',
+  'Remover': 'Remove',
+  'Excluir a página "{0}" e seus {1} botões?': 'Delete page "{0}" and its {1} buttons?',
+  'Escolha na janela que abriu...': 'Choose in the window that opened...',
+  'Botão duplicado': 'Button duplicated',
+  'Excluir o botão "{0}"?': 'Delete button "{0}"?',
+  'Esse botão não tem ações para testar': 'This button has no actions to test',
+  'Executando em {0}s... clique na janela onde quer testar': 'Running in {0}s... click the window where you want to test',
+  'Executado no PC': 'Ran on PC',
+  'Erro: {0}': 'Error: {0}',
+  'Nada encontrado.': 'Nothing found.',
+  'Nova página {0}': 'New page {0}',
+  'Não consegui ler a rede: {0}': "Couldn't read the network: {0}",
+  '{0} copiado': '{0} copied',
+  'Não consegui copiar': "Couldn't copy",
+  'Conexão do celular': 'Phone connection',
+  'IP que o PC Deck está usando': 'IP that PC Deck is using',
+  'Automático (DHCP)': 'Automatic (DHCP)',
+  'Fixo no Windows': 'Static in Windows',
+  'Esse IP é dado pelo roteador e <b>pode mudar</b> depois que ele reinicia. Se mudar, o celular perde a conexão. Para não mudar mais, faça a <b>reserva de IP</b>; o passo a passo está ao lado. Se já fez, pode ignorar este aviso.':
+    'This IP is given by the router and <b>may change</b> after it restarts. If it changes, the phone loses the connection. To keep it from changing, set up an <b>IP reservation</b>; the step-by-step is on the side. If you already did, you can ignore this notice.',
+  'Porta': 'Port',
+  'Conexão': 'Connection',
+  'Cabo (Ethernet)': 'Cable (Ethernet)',
+  'Roteador': 'Router',
+  'MAC da placa': 'Adapter MAC',
+  'Nome do PC': 'PC name',
+  'Placa de rede': 'Network adapter',
+  'Nenhuma rede conectada. Conecte o PC ao Wi-Fi ou ao cabo.': 'No network connected. Connect the PC to Wi-Fi or a cable.',
+  'Endereço para abrir no celular': 'Address to open on the phone',
+  'Copiar': 'Copy',
+  'Endereço': 'Address',
+  'Inicialização': 'Startup',
+  'Iniciar junto com o Windows': 'Start with Windows',
+  'O PC Deck abre sozinho, escondido perto do relógio': 'PC Deck opens by itself, hidden near the clock',
+  'Vai iniciar com o Windows': 'Will start with Windows',
+  'Não vai mais iniciar com o Windows': 'Will no longer start with Windows',
+  'Idioma': 'Language',
+  'Idioma do editor, do painel do celular e do menu do ícone': 'Language for the editor, the phone panel and the tray menu',
+  'PC Deck versão {0}': 'PC Deck version {0}',
+  'Fixar o IP': 'Lock the IP',
+  'Fixar o IP no roteador': 'Lock the IP on the router',
+  'Assim o endereço do celular nunca muda. Você faz isso uma vez só, no roteador, e não mexe em nada do Windows.':
+    "This way the phone address never changes. You only do it once, on the router, and nothing changes in Windows.",
+  'Abra a página do roteador': "Open the router's page",
+  'Usuário e senha costumam estar na <b>etiqueta embaixo do roteador</b>.': 'The username and password are usually on the <b>sticker under the router</b>.',
+  'Abrir {0}': 'Open {0}',
+  'Procure a reserva de IP': 'Find the IP reservation',
+  'O nome muda conforme a marca. Geralmente fica em <b>Rede</b>, <b>LAN</b> ou <b>DHCP</b>. Procure algo como:':
+    'The name changes by brand. It is usually under <b>Network</b>, <b>LAN</b> or <b>DHCP</b>. Look for something like:',
+  'Adicione este PC': 'Add this PC',
+  'Clique em adicionar e preencha com estes dados:': 'Click add and fill in these details:',
+  'Se pedir um nome ou descrição, use <b>PC Deck</b>. Alguns roteadores mostram uma lista de aparelhos conectados: aí é só escolher <b>{0}</b>.':
+    'If it asks for a name or description, use <b>PC Deck</b>. Some routers show a list of connected devices: then just pick <b>{0}</b>.',
+  'Salve': 'Save',
+  'Se o roteador pedir, reinicie ele. Pronto: este PC vai receber sempre o IP <b>{0}</b>.':
+    'If the router asks, restart it. Done: this PC will always get the IP <b>{0}</b>.',
+  'Você está no <b>Wi-Fi</b>. Se um dia ligar o PC no cabo, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.':
+    "You are on <b>Wi-Fi</b>. If you ever plug the PC into a cable, the adapter changes (and so does the MAC), so you'll need a reservation for it too.",
+  'Você está no <b>cabo</b>. Se um dia usar o Wi-Fi do PC, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.':
+    "You are on a <b>cable</b>. If you ever use the PC's Wi-Fi, the adapter changes (and so does the MAC), so you'll need a reservation for it too.",
+  'Descartar as alterações não salvas?': 'Discard unsaved changes?',
+  'Não consegui carregar o config: {0}': "Couldn't load the config: {0}"
+};
+function t(s, ...args) {
+  let r = (LANG === 'en' && EN[s]) || s;
+  args.forEach((v, i) => { r = r.split('{' + i + '}').join(v); });
+  return r;
+}
+document.documentElement.lang = LANG === 'en' ? 'en' : 'pt-BR';
+document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.textContent.trim()); });
+document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -339,16 +500,17 @@ const ICONS = ('play_pause play_arrow pause stop skip_previous skip_next fast_fo
   'arrow_upward arrow_downward arrow_back arrow_forward north south east west zoom_in zoom_out').split(' ');
 
 const TYPES = {
-  keys:   { label: 'Atalho de teclado', icon: 'keyboard', def: () => ({ keys: '' }) },
-  media:  { label: 'Controle de mídia', icon: 'play_circle', def: () => ({ key: 'play_pause' }) },
-  volume: { label: 'Volume', icon: 'volume_up', def: () => ({ step: 5 }) },
-  open:   { label: 'Abrir app / site / pasta', icon: 'open_in_new', def: () => ({ target: '' }) },
-  text:   { label: 'Digitar texto', icon: 'text_fields', def: () => ({ text: '' }) },
-  run:    { label: 'Comando PowerShell', icon: 'terminal', def: () => ({ cmd: '' }) },
-  wait:   { label: 'Esperar', icon: 'hourglass_empty', def: () => ({ ms: 300 }) },
-  page:   { label: 'Ir para página', icon: 'tab', def: () => ({ to: cfg.pages[0]?.name || '' }) }
+  keys:   { label: t('Atalho de teclado'), icon: 'keyboard', def: () => ({ keys: '' }) },
+  media:  { label: t('Controle de mídia'), icon: 'play_circle', def: () => ({ key: 'play_pause' }) },
+  volume: { label: t('Volume'), icon: 'volume_up', def: () => ({ step: 5 }) },
+  open:   { label: t('Abrir app / site / pasta'), icon: 'open_in_new', def: () => ({ target: '' }) },
+  text:   { label: t('Digitar texto'), icon: 'text_fields', def: () => ({ text: '' }) },
+  run:    { label: t('Comando PowerShell'), icon: 'terminal', def: () => ({ cmd: '' }) },
+  wait:   { label: t('Esperar'), icon: 'hourglass_empty', def: () => ({ ms: 300 }) },
+  page:   { label: t('Ir para página'), icon: 'tab', def: () => ({ to: cfg.pages[0]?.name || '' }) }
 };
-const MEDIA = [['play_pause', 'Play / Pause', 'play_pause'], ['prev', 'Anterior', 'skip_previous'], ['next', 'Próxima', 'skip_next'], ['stop', 'Parar', 'stop']];
+const MEDIA = [['play_pause', 'Play / Pause', 'play_pause'], ['prev', t('Anterior'), 'skip_previous'], ['next', t('Próxima'), 'skip_next'], ['stop', t('Parar'), 'stop']];
+const NEW_BUTTON = t('Novo botão');
 
 let cfg = null, savedText = '', pageIdx = 0, btnIdx = null, recording = null;
 
@@ -360,19 +522,19 @@ async function api(path, body, raw) {
     body: body === undefined ? undefined : (raw ? body : JSON.stringify(body))
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok || j.ok === false) throw new Error(j.error || ('Erro ' + r.status));
+  if (!r.ok || j.ok === false) throw new Error(j.error || t('Erro {0}', r.status));
   return j;
 }
 
 let toastT;
 function toast(msg, bad, icon) {
-  const t = $('toast');
-  t.innerHTML = `<span class="ms">${icon || (bad ? 'error' : 'check_circle')}</span><span></span>`;
-  t.lastChild.textContent = msg;
-  t.classList.toggle('bad', !!bad);
-  t.classList.add('show');
+  const el = $('toast');
+  el.innerHTML = `<span class="ms">${icon || (bad ? 'error' : 'check_circle')}</span><span></span>`;
+  el.lastChild.textContent = msg;
+  el.classList.toggle('bad', !!bad);
+  el.classList.add('show');
   clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove('show'), 2600);
+  toastT = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
 // ---------- estado ----------
@@ -386,7 +548,7 @@ function changed() {
   $('revert').disabled = !d;
   const s = $('status');
   s.className = 'status' + (d ? ' dirty' : '');
-  s.innerHTML = d ? '<span class="ms">edit</span>Alterações não salvas' : '<span class="ms">cloud_done</span>Tudo salvo';
+  s.innerHTML = d ? `<span class="ms">edit</span>${t('Alterações não salvas')}` : `<span class="ms">cloud_done</span>${t('Tudo salvo')}`;
 }
 
 function normalize(c) {
@@ -410,7 +572,7 @@ async function load() {
 }
 
 async function save() {
-  if (!isDirty()) return;
+  if (!isDirty()) return true;
   const text = JSON.stringify(cfg, null, 2);
   try {
     await api('/api/editor/save', text, true);
@@ -418,9 +580,10 @@ async function save() {
     changed();
     const s = $('status');
     s.className = 'status saved';
-    s.innerHTML = '<span class="ms">check_circle</span>Salvo · o celular já atualizou';
-    toast('Salvo! O celular atualiza sozinho.');
-  } catch (e) { toast('Erro ao salvar: ' + e.message, true); }
+    s.innerHTML = `<span class="ms">check_circle</span>${t('Salvo · o celular já atualizou')}`;
+    toast(t('Salvo! O celular atualiza sozinho.'));
+    return true;
+  } catch (e) { toast(t('Erro ao salvar: {0}', e.message), true); return false; }
 }
 
 // ---------- render ----------
@@ -463,34 +626,34 @@ function tileHTML(b) {
   return `<span class="ico"><span class="ms">${esc(b.icon || 'radio_button_unchecked')}</span></span>` +
     `<span class="lbl">${esc(b.label)}</span>` +
     (b.confirm ? '<span class="ms lock">touch_app</span>' : '') +
-    (empty ? '<span class="empty-actions">sem ação</span>' : '');
+    (empty ? `<span class="empty-actions">${t('sem ação')}</span>` : '');
 }
 
 function renderGrid() {
   const p = page();
-  $('pageTitle').innerHTML = p ? `<span class="ms">${esc(p.icon || 'grid_view')}</span>${esc(p.name)}` : 'Sem páginas';
+  $('pageTitle').innerHTML = p ? `<span class="ms">${esc(p.icon || 'grid_view')}</span>${esc(p.name)}` : t('Sem páginas');
   const grid = $('grid');
   grid.style.setProperty('--cols', cfg.columns || 3);
   grid.innerHTML = '';
   if (!p) return;
   p.buttons.forEach((b, i) => {
-    const t = document.createElement('div');
-    t.className = 'tile' + (i === btnIdx ? ' sel' : '');
-    t.style.setProperty('--c', b.color || '#7c5cff');
-    t.draggable = true;
-    t.innerHTML = tileHTML(b);
-    t.onclick = () => { btnIdx = i; renderGrid(); renderPanel(); };
-    dnd(t, 'btn', i, (from, to) => {
+    const el = document.createElement('div');
+    el.className = 'tile' + (i === btnIdx ? ' sel' : '');
+    el.style.setProperty('--c', b.color || '#7c5cff');
+    el.draggable = true;
+    el.innerHTML = tileHTML(b);
+    el.onclick = () => { btnIdx = i; renderGrid(); renderPanel(); };
+    dnd(el, 'btn', i, (from, to) => {
       const cur = btn();
       p.buttons.splice(to, 0, p.buttons.splice(from, 1)[0]);
       if (cur) btnIdx = p.buttons.indexOf(cur);
       renderGrid(); changed();
     });
-    grid.appendChild(t);
+    grid.appendChild(el);
   });
   const add = document.createElement('div');
   add.className = 'tile add';
-  add.innerHTML = '<span class="ms">add</span><span class="lbl">Novo botão</span>';
+  add.innerHTML = `<span class="ms">add</span><span class="lbl">${NEW_BUTTON}</span>`;
   add.onclick = addButton;
   grid.appendChild(add);
 }
@@ -516,7 +679,7 @@ function dnd(el, kind, idx, onMove) {
         cfg.pages[idx].buttons.push(b);
         btnIdx = null;
         renderPages(); renderGrid(); renderPanel(); changed();
-        toast(`Movido para "${cfg.pages[idx].name}"`, false, 'drive_file_move');
+        toast(t('Movido para "{0}"', cfg.pages[idx].name), false, 'drive_file_move');
       }
     });
   }
@@ -535,32 +698,33 @@ function renderPanel() {
   const panel = $('panel');
   if (view === 'settings') { renderTutorial(); return; }
   const b = btn();
-  if (!page()) { panel.innerHTML = '<div class="muted">Crie uma página para começar.</div>'; return; }
+  if (!page()) { panel.innerHTML = `<div class="muted">${t('Crie uma página para começar.')}</div>`; return; }
   panel.innerHTML = b ? buttonPanel(b) : pagePanel(page());
   bindPanel();
 }
 
 function iconPicker(cur, scope) {
+  const link = '<a href="https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Rounded" target="_blank">fonts.google.com/icons</a>';
   return `
     <div class="icon-search">
       <span class="cur"><span class="ms">${esc(cur)}</span></span>
-      <input class="inp" data-icon-input="${scope}" value="${esc(cur)}" placeholder="Buscar ícone (em inglês: music, folder...)">
+      <input class="inp" data-icon-input="${scope}" value="${esc(cur)}" placeholder="${t('Buscar ícone (em inglês: music, folder...)')}">
     </div>
     <div class="icon-grid" data-icon-grid="${scope}"></div>
-    <div class="icon-note">Mais ícones em <a href="https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Rounded" target="_blank">fonts.google.com/icons</a>: copie o nome e cole acima.</div>`;
+    <div class="icon-note">${t('Mais ícones em {0}: copie o nome e cole acima.', link)}</div>`;
 }
 
 function pagePanel(p) {
   return `
-    <h3><span class="ms">tab</span>Página</h3>
+    <h3><span class="ms">tab</span>${t('Página')}</h3>
     <div class="card">
-      <label class="field">Nome <input data-page="name" value="${esc(p.name)}"></label>
-      <div class="field">Ícone da aba</div>
+      <label class="field">${t('Nome')} <input data-page="name" value="${esc(p.name)}"></label>
+      <div class="field">${t('Ícone da aba')}</div>
       ${iconPicker(p.icon || 'grid_view', 'page')}
     </div>
-    <div class="muted">Clique num botão da grade para editar, ou em <b>+ Novo botão</b>. Arraste um botão para uma página da lateral para mover.</div>
+    <div class="muted">${t('Clique num botão da grade para editar, ou em <b>+ Novo botão</b>. Arraste um botão para uma página da lateral para mover.')}</div>
     <div class="footer-btns">
-      <button class="btn danger" id="delPage" ${cfg.pages.length < 2 ? 'disabled' : ''}><span class="ms">delete</span>Excluir página</button>
+      <button class="btn danger" id="delPage" ${cfg.pages.length < 2 ? 'disabled' : ''}><span class="ms">delete</span>${t('Excluir página')}</button>
     </div>`;
 }
 
@@ -568,51 +732,51 @@ function buttonPanel(b) {
   const color = b.color || '#7c5cff';
   const sw = COLORS.map(c => `<button class="sw${c.toLowerCase() === color.toLowerCase() ? ' on' : ''}" style="background:${c}" data-color="${c}"></button>`).join('');
   return `
-    <h3><span class="ms">touch_app</span>Botão
+    <h3><span class="ms">touch_app</span>${t('Botão')}
       <span style="flex:1"></span>
-      <button class="btn sm icon" id="closeBtn" title="Fechar"><span class="ms">close</span></button>
+      <button class="btn sm icon" id="closeBtn" title="${t('Fechar')}"><span class="ms">close</span></button>
     </h3>
     <div class="card">
       <div class="preview-row">
         <div class="tile" style="--c:${esc(color)}">${tileHTML(b)}</div>
         <div class="fields">
-          <label class="field">Texto <input data-btn="label" value="${esc(b.label)}" maxlength="30"></label>
-          <div class="field">Cor</div>
-          <div class="swatches">${sw}<label class="sw-custom" title="Outra cor"><span class="ms">colorize</span><input type="color" id="colorPick" value="${esc(color)}"></label></div>
+          <label class="field">${t('Texto')} <input data-btn="label" value="${esc(b.label)}" maxlength="30"></label>
+          <div class="field">${t('Cor')}</div>
+          <div class="swatches">${sw}<label class="sw-custom" title="${t('Outra cor')}"><span class="ms">colorize</span><input type="color" id="colorPick" value="${esc(color)}"></label></div>
         </div>
       </div>
-      <div class="field">Ícone</div>
+      <div class="field">${t('Ícone')}</div>
       ${iconPicker(b.icon || 'radio_button_unchecked', 'btn')}
       <div class="toggle${b.confirm ? ' on' : ''}" id="confirmToggle">
-        <div class="txt"><b>Segurar para confirmar</b><span>Para ações perigosas, como desligar ou fechar</span></div>
+        <div class="txt"><b>${t('Segurar para confirmar')}</b><span>${t('Para ações perigosas, como desligar ou fechar')}</span></div>
         <div class="switch"></div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Ações · executadas em ordem<span>${b.actions.length}</span></div>
-      ${b.actions.length ? b.actions.map((a, i) => actionHTML(a, i, b.actions.length)).join('') : '<div class="muted">Nenhuma ação ainda. Escolha abaixo o que o botão faz. Com várias ações ele vira uma macro.</div>'}
-      <div class="card-title" style="margin-top:4px">Adicionar ação</div>
+      <div class="card-title">${t('Ações · executadas em ordem')}<span>${b.actions.length}</span></div>
+      ${b.actions.length ? b.actions.map((a, i) => actionHTML(a, i, b.actions.length)).join('') : `<div class="muted">${t('Nenhuma ação ainda. Escolha abaixo o que o botão faz. Com várias ações ele vira uma macro.')}</div>`}
+      <div class="card-title" style="margin-top:4px">${t('Adicionar ação')}</div>
       <div class="add-act">
-        ${Object.entries(TYPES).map(([k, t]) => `<button data-add="${k}"><span class="ms">${t.icon}</span>${t.label}</button>`).join('')}
+        ${Object.entries(TYPES).map(([k, ty]) => `<button data-add="${k}"><span class="ms">${ty.icon}</span>${ty.label}</button>`).join('')}
       </div>
     </div>
 
     <div class="footer-btns">
-      <button class="btn" id="testBtn"><span class="ms">play_arrow</span>Testar no PC</button>
-      <button class="btn" id="dupBtn"><span class="ms">content_copy</span>Duplicar</button>
-      <button class="btn danger" id="delBtn"><span class="ms">delete</span>Excluir</button>
+      <button class="btn" id="testBtn"><span class="ms">play_arrow</span>${t('Testar no PC')}</button>
+      <button class="btn" id="dupBtn"><span class="ms">content_copy</span>${t('Duplicar')}</button>
+      <button class="btn danger" id="delBtn"><span class="ms">delete</span>${t('Excluir')}</button>
     </div>`;
 }
 
 function actionHTML(a, i, n) {
-  const t = TYPES[a.type] || { label: a.type, icon: 'help' };
+  const ty = TYPES[a.type] || { label: a.type, icon: 'help' };
   let body = '';
   switch (a.type) {
     case 'keys':
-      body = `<div class="rec"><input class="inp" data-a="${i}" data-k="keys" value="${esc(a.keys)}" placeholder="ex: ctrl+shift+s">
-        <button class="btn sm" data-rec="${i}"><span class="ms">radio_button_checked</span>Gravar</button></div>
-        <div class="muted" style="font-size:12px">Clique em Gravar e aperte o atalho. Alguns (como os com a tecla Windows) precisam ser digitados à mão: <code>win+d</code>.</div>`;
+      body = `<div class="rec"><input class="inp" data-a="${i}" data-k="keys" value="${esc(a.keys)}" placeholder="${t('ex: ctrl+shift+s')}">
+        <button class="btn sm" data-rec="${i}"><span class="ms">radio_button_checked</span>${t('Gravar')}</button></div>
+        <div class="muted" style="font-size:12px">${t('Clique em Gravar e aperte o atalho. Alguns (como os com a tecla Windows) precisam ser digitados à mão: <code>win+d</code>.')}</div>`;
       break;
     case 'media':
       body = `<div class="chips">${MEDIA.map(([k, l, ic]) => `<span class="chip${a.key === k ? ' on' : ''}" data-a="${i}" data-set-k="key" data-v="${k}"><span class="ms">${ic}</span>${l}</span>`).join('')}</div>`;
@@ -620,43 +784,43 @@ function actionHTML(a, i, n) {
     case 'volume': {
       const mode = a.mute !== undefined ? 'mute' : a.set !== undefined ? 'set' : 'step';
       body = `<div class="chips">
-          <span class="chip${mode === 'step' ? ' on' : ''}" data-a="${i}" data-vol="step">Aumentar / diminuir</span>
-          <span class="chip${mode === 'set' ? ' on' : ''}" data-a="${i}" data-vol="set">Definir nível</span>
-          <span class="chip${mode === 'mute' ? ' on' : ''}" data-a="${i}" data-vol="mute">Mudo liga/desliga</span>
+          <span class="chip${mode === 'step' ? ' on' : ''}" data-a="${i}" data-vol="step">${t('Aumentar / diminuir')}</span>
+          <span class="chip${mode === 'set' ? ' on' : ''}" data-a="${i}" data-vol="set">${t('Definir nível')}</span>
+          <span class="chip${mode === 'mute' ? ' on' : ''}" data-a="${i}" data-vol="mute">${t('Mudo liga/desliga')}</span>
         </div>` +
-        (mode === 'step' ? `<label class="field">Quanto (use negativo para diminuir) <input type="number" data-a="${i}" data-k="step" data-num value="${esc(a.step)}" min="-100" max="100"></label>` : '') +
-        (mode === 'set' ? `<label class="field">Nível (0 a 100) <input type="number" data-a="${i}" data-k="set" data-num value="${esc(a.set)}" min="0" max="100"></label>` : '');
+        (mode === 'step' ? `<label class="field">${t('Quanto (use negativo para diminuir)')} <input type="number" data-a="${i}" data-k="step" data-num value="${esc(a.step)}" min="-100" max="100"></label>` : '') +
+        (mode === 'set' ? `<label class="field">${t('Nível (0 a 100)')} <input type="number" data-a="${i}" data-k="set" data-num value="${esc(a.set)}" min="0" max="100"></label>` : '');
       break;
     }
     case 'open':
       body = (a.app ? `<div class="app-tag"><span class="ms">apps</span>App: <b>${esc(a.app)}</b></div>` : '') +
         `<div class="chips">
-          <span class="chip" data-pick-app="${i}"><span class="ms">apps</span>Apps instalados</span>
-          <span class="chip" data-pick="${i}" data-kind="file"><span class="ms">draft</span>Arquivo / programa</span>
-          <span class="chip" data-pick="${i}" data-kind="folder"><span class="ms">folder</span>Pasta</span>
+          <span class="chip" data-pick-app="${i}"><span class="ms">apps</span>${t('Apps instalados')}</span>
+          <span class="chip" data-pick="${i}" data-kind="file"><span class="ms">draft</span>${t('Arquivo / programa')}</span>
+          <span class="chip" data-pick="${i}" data-kind="folder"><span class="ms">folder</span>${t('Pasta')}</span>
         </div>
-        <label class="field">Caminho, site ou endereço <input data-a="${i}" data-k="target" value="${esc(a.target)}" placeholder="C:\\...\\app.exe  ·  https://site.com  ·  ms-settings:"></label>
-        <label class="field">Argumentos (opcional) <input data-a="${i}" data-k="args" value="${esc(a.args)}"></label>`;
+        <label class="field">${t('Caminho, site ou endereço')} <input data-a="${i}" data-k="target" value="${esc(a.target)}" placeholder="C:\\...\\app.exe  ·  https://site.com  ·  ms-settings:"></label>
+        <label class="field">${t('Argumentos (opcional)')} <input data-a="${i}" data-k="args" value="${esc(a.args)}"></label>`;
       break;
     case 'text':
-      body = `<label class="field">Texto (Enter = nova linha) <textarea data-a="${i}" data-k="text">${esc(a.text)}</textarea></label>`;
+      body = `<label class="field">${t('Texto (Enter = nova linha)')} <textarea data-a="${i}" data-k="text">${esc(a.text)}</textarea></label>`;
       break;
     case 'run':
-      body = `<label class="field">Comando <textarea data-a="${i}" data-k="cmd" placeholder="ex: shutdown /a">${esc(a.cmd)}</textarea></label>
-        <label class="toggle${a.show ? ' on' : ''}" data-a="${i}" data-toggle="show"><div class="txt"><b>Mostrar janela</b><span>Deixe desligado para rodar escondido</span></div><div class="switch"></div></label>`;
+      body = `<label class="field">${t('Comando')} <textarea data-a="${i}" data-k="cmd" placeholder="${t('ex: shutdown /a')}">${esc(a.cmd)}</textarea></label>
+        <label class="toggle${a.show ? ' on' : ''}" data-a="${i}" data-toggle="show"><div class="txt"><b>${t('Mostrar janela')}</b><span>${t('Deixe desligado para rodar escondido')}</span></div><div class="switch"></div></label>`;
       break;
     case 'wait':
-      body = `<label class="field">Milissegundos (1000 = 1 segundo) <input type="number" data-a="${i}" data-k="ms" data-num value="${esc(a.ms)}" min="0" step="100"></label>`;
+      body = `<label class="field">${t('Milissegundos (1000 = 1 segundo)')} <input type="number" data-a="${i}" data-k="ms" data-num value="${esc(a.ms)}" min="0" step="100"></label>`;
       break;
     case 'page':
-      body = `<label class="field">Página <select data-a="${i}" data-k="to">${cfg.pages.map(p => `<option${p.name === a.to ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+      body = `<label class="field">${t('Página')} <select data-a="${i}" data-k="to">${cfg.pages.map(p => `<option${p.name === a.to ? ' selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>`;
       break;
   }
   return `<div class="act">
-    <div class="act-head"><span class="num">${i + 1}</span><span class="ms t">${t.icon}</span><span class="nm">${t.label}</span>
-      <button data-up="${i}" ${i === 0 ? 'disabled style="opacity:.3"' : ''} title="Subir"><span class="ms">arrow_upward</span></button>
-      <button data-down="${i}" ${i === n - 1 ? 'disabled style="opacity:.3"' : ''} title="Descer"><span class="ms">arrow_downward</span></button>
-      <button class="del" data-del="${i}" title="Remover"><span class="ms">delete</span></button>
+    <div class="act-head"><span class="num">${i + 1}</span><span class="ms t">${ty.icon}</span><span class="nm">${ty.label}</span>
+      <button data-up="${i}" ${i === 0 ? 'disabled style="opacity:.3"' : ''} title="${t('Subir')}"><span class="ms">arrow_upward</span></button>
+      <button data-down="${i}" ${i === n - 1 ? 'disabled style="opacity:.3"' : ''} title="${t('Descer')}"><span class="ms">arrow_downward</span></button>
+      <button class="del" data-del="${i}" title="${t('Remover')}"><span class="ms">delete</span></button>
     </div>
     <div class="act-body">${body}</div>
   </div>`;
@@ -711,7 +875,7 @@ function bindPanel() {
     });
     const del = $('delPage');
     if (del) del.onclick = () => {
-      if (!confirm(`Excluir a página "${p.name}" e seus ${p.buttons.length} botões?`)) return;
+      if (!confirm(t('Excluir a página "{0}" e seus {1} botões?', p.name, p.buttons.length))) return;
       cfg.pages.splice(pageIdx, 1);
       pageIdx = Math.max(0, pageIdx - 1);
       renderAll();
@@ -784,20 +948,20 @@ function bindPanel() {
     if (recording) { stopRec(); return; }
     recording = { idx: +c.dataset.rec, el: c };
     c.classList.add('recording');
-    c.innerHTML = '<span class="ms">keyboard</span>Aperte...';
+    c.innerHTML = `<span class="ms">keyboard</span>${t('Aperte...')}`;
   });
 
   // escolher arquivo / pasta / app
   panel.querySelectorAll('[data-pick]').forEach(c => c.onclick = async () => {
     try {
-      toast('Escolha na janela que abriu...', false, 'folder_open');
+      toast(t('Escolha na janela que abriu...'), false, 'folder_open');
       const r = await api('/api/editor/pick?kind=' + c.dataset.kind);
       if (!r.path) return;
       const a = b.actions[+c.dataset.pick];
       delete a.app;
       if (c.dataset.kind === 'folder') { a.target = 'explorer.exe'; a.args = `"${r.path}"`; }
       else { a.target = r.path; delete a.args; }
-      if (!b.label || b.label === 'Novo botão') b.label = r.path.split('\\').pop().replace(/\.(exe|lnk|bat|cmd|url|ps1)$/i, '');
+      if (!b.label || b.label === NEW_BUTTON) b.label = r.path.split('\\').pop().replace(/\.(exe|lnk|bat|cmd|url|ps1)$/i, '');
       renderPanel(); refreshPreview();
     } catch (e) { toast(e.message, true); }
   });
@@ -809,10 +973,10 @@ function bindPanel() {
     page().buttons.splice(btnIdx + 1, 0, clone(b));
     btnIdx++;
     renderAll();
-    toast('Botão duplicado', false, 'content_copy');
+    toast(t('Botão duplicado'), false, 'content_copy');
   };
   $('delBtn').onclick = () => {
-    if (!confirm(`Excluir o botão "${b.label}"?`)) return;
+    if (!confirm(t('Excluir o botão "{0}"?', b.label))) return;
     page().buttons.splice(btnIdx, 1);
     btnIdx = null;
     renderAll();
@@ -822,7 +986,7 @@ function bindPanel() {
 function stopRec() {
   if (!recording) return;
   recording.el.classList.remove('recording');
-  recording.el.innerHTML = '<span class="ms">radio_button_checked</span>Gravar';
+  recording.el.innerHTML = `<span class="ms">radio_button_checked</span>${t('Gravar')}`;
   recording = null;
 }
 
@@ -853,20 +1017,20 @@ window.addEventListener('keydown', e => {
 async function testButton() {
   const b = btn();
   const actions = b.actions.filter(a => a.type !== 'page');
-  if (!actions.length) { toast('Esse botão não tem ações para testar', true); return; }
+  if (!actions.length) { toast(t('Esse botão não tem ações para testar'), true); return; }
   const needsFocus = actions.some(a => a.type === 'keys' || a.type === 'text');
   try {
     if (needsFocus) {
-      for (let s = 3; s > 0; s--) { toast(`Executando em ${s}s... clique na janela onde quer testar`, false, 'timer'); await new Promise(r => setTimeout(r, 1000)); }
+      for (let s = 3; s > 0; s--) { toast(t('Executando em {0}s... clique na janela onde quer testar', s), false, 'timer'); await new Promise(r => setTimeout(r, 1000)); }
     }
     await api('/api/editor/test', { actions });
-    toast('Executado no PC');
+    toast(t('Executado no PC'));
   } catch (e) { toast(e.message, true); }
 }
 
 function addButton() {
   if (!page()) return;
-  page().buttons.push({ label: 'Novo botão', icon: 'radio_button_unchecked', color: '#7c5cff', actions: [] });
+  page().buttons.push({ label: NEW_BUTTON, icon: 'radio_button_unchecked', color: '#7c5cff', actions: [] });
   btnIdx = page().buttons.length - 1;
   renderAll();
   const lbl = document.querySelector('[data-btn="label"]');
@@ -882,15 +1046,15 @@ async function openApps(actionIdx) {
   $('appsSearch').focus();
   if (!apps) {
     try { apps = (await api('/api/editor/apps')).apps || []; }
-    catch (e) { $('appsList').innerHTML = `<div class="muted" style="padding:12px">Erro: ${esc(e.message)}</div>`; return; }
+    catch (e) { $('appsList').innerHTML = `<div class="muted" style="padding:12px">${esc(t('Erro: {0}', e.message))}</div>`; return; }
   }
   listApps('');
 }
 function listApps(q) {
   q = q.trim().toLowerCase();
   const list = apps.filter(a => !q || a.name.toLowerCase().includes(q)).slice(0, 200);
-  $('appsList').innerHTML = list.length ? list.map((a, i) => `<button class="app-item" data-app="${apps.indexOf(a)}"><span class="ms">apps</span>${esc(a.name)}</button>`).join('')
-    : '<div class="muted" style="padding:12px">Nada encontrado.</div>';
+  $('appsList').innerHTML = list.length ? list.map(a => `<button class="app-item" data-app="${apps.indexOf(a)}"><span class="ms">apps</span>${esc(a.name)}</button>`).join('')
+    : `<div class="muted" style="padding:12px">${t('Nada encontrado.')}</div>`;
 }
 $('appsSearch').addEventListener('input', e => listApps(e.target.value));
 $('appsClose').onclick = () => $('appsModal').classList.remove('show');
@@ -904,7 +1068,7 @@ $('appsList').addEventListener('click', e => {
   a.target = 'explorer.exe';
   a.args = `"shell:AppsFolder\\${app.id}"`;
   a.app = app.name;
-  if (!b.label || b.label === 'Novo botão') b.label = app.name;
+  if (!b.label || b.label === NEW_BUTTON) b.label = app.name;
   $('appsModal').classList.remove('show');
   renderPanel(); refreshPreview();
 });
@@ -915,8 +1079,8 @@ $('gTitle').addEventListener('input', e => { cfg.title = e.target.value; changed
 $('gCols').addEventListener('input', e => { cfg.columns = Math.max(2, Math.min(8, +e.target.value || 3)); renderGrid(); changed(); });
 $('gColsL').addEventListener('input', e => { cfg.columnsLandscape = Math.max(2, Math.min(10, +e.target.value || 5)); changed(); });
 $('addPage').onclick = () => {
-  let n = 1, name = 'Nova página';
-  while (cfg.pages.some(p => p.name === name)) name = 'Nova página ' + (++n);
+  let n = 1, name = t('Nova página');
+  while (cfg.pages.some(p => p.name === name)) name = t('Nova página {0}', ++n);
   cfg.pages.push({ name, icon: 'grid_view', buttons: [] });
   pageIdx = cfg.pages.length - 1;
   btnIdx = null;
@@ -925,6 +1089,7 @@ $('addPage').onclick = () => {
   const inp = document.querySelector('[data-page="name"]');
   if (inp) { inp.focus(); inp.select(); }
 };
+
 // ---------- configuracoes ----------
 let view = 'page', info = null, infoT = null;
 
@@ -954,66 +1119,87 @@ async function loadInfo() {
     const changedInfo = JSON.stringify(r) !== JSON.stringify(info);
     info = r;
     if (changedInfo && view === 'settings') { renderSettings(); renderTutorial(); }
-  } catch (e) { toast('Não consegui ler a rede: ' + e.message, true); }
+  } catch (e) { toast(t('Não consegui ler a rede: {0}', e.message), true); }
 }
 
 async function copy(text, what) {
-  try { await navigator.clipboard.writeText(text); toast(what + ' copiado', false, 'content_copy'); }
-  catch { toast('Não consegui copiar', true); }
+  try { await navigator.clipboard.writeText(text); toast(t('{0} copiado', what), false, 'content_copy'); }
+  catch { toast(t('Não consegui copiar'), true); }
+}
+
+// troca o idioma de tudo (editor, celular e menu do icone) e recarrega o editor
+async function setLanguage(lang) {
+  if (lang === LANG) return;
+  try {
+    if (isDirty() && !(await save())) return;
+    await api('/api/editor/language', { lang });
+    try { sessionStorage.setItem('deck.settings', '1'); } catch {}
+    location.reload();
+  } catch (e) { toast(e.message, true); }
 }
 
 function renderSettings() {
   const box = $('settingsView');
-  if (!info) { box.innerHTML = '<div class="muted">Carregando...</div>'; return; }
+  if (!info) { box.innerHTML = `<div class="muted">${t('Carregando...')}</div>`; return; }
   const n = info.net;
   box.innerHTML = `
     <div class="set-wrap">
-      <div class="stage-head" style="max-width:none"><h2><span class="ms">settings</span>Configurações</h2></div>
+      <div class="stage-head" style="max-width:none"><h2><span class="ms">settings</span>${t('Configurações')}</h2></div>
 
       <div class="card">
-        <div class="card-title">Conexão do celular</div>
+        <div class="card-title">${t('Conexão do celular')}</div>
         ${n ? `
         <div class="ipbox">
-          <div><div class="lbl">IP que o PC Deck está usando</div><div class="ip">${esc(n.ip)}</div></div>
+          <div><div class="lbl">${t('IP que o PC Deck está usando')}</div><div class="ip">${esc(n.ip)}</div></div>
           ${n.dhcp
-            ? '<span class="badge warn"><span class="ms">sync</span>Automático (DHCP)</span>'
-            : '<span class="badge ok"><span class="ms">lock</span>Fixo no Windows</span>'}
+            ? `<span class="badge warn"><span class="ms">sync</span>${t('Automático (DHCP)')}</span>`
+            : `<span class="badge ok"><span class="ms">lock</span>${t('Fixo no Windows')}</span>`}
         </div>
-        ${n.dhcp ? '<div class="note">Esse IP é dado pelo roteador e <b>pode mudar</b> depois que ele reinicia. Se mudar, o celular perde a conexão. Para não mudar mais, faça a <b>reserva de IP</b>; o passo a passo está ao lado. Se já fez, pode ignorar este aviso.</div>' : ''}
+        ${n.dhcp ? `<div class="note">${t('Esse IP é dado pelo roteador e <b>pode mudar</b> depois que ele reinicia. Se mudar, o celular perde a conexão. Para não mudar mais, faça a <b>reserva de IP</b>; o passo a passo está ao lado. Se já fez, pode ignorar este aviso.')}</div>` : ''}
         <div class="kv">
-          <div><span>Porta</span><b>${esc(info.port)}</b></div>
-          <div><span>Conexão</span><b>${n.wifi ? 'Wi-Fi' : 'Cabo (Ethernet)'}</b></div>
-          <div><span>Roteador</span><b>${esc(n.gateway)}</b></div>
-          <div><span>MAC da placa</span><b>${esc(n.mac)}</b></div>
-          <div><span>Nome do PC</span><b>${esc(info.host)}</b></div>
-          <div><span>Placa de rede</span><b>${esc(n.adapter)}</b></div>
-        </div>` : '<div class="note">Nenhuma rede conectada. Conecte o PC ao Wi-Fi ou ao cabo.</div>'}
-        <div class="field">Endereço para abrir no celular</div>
+          <div><span>${t('Porta')}</span><b>${esc(info.port)}</b></div>
+          <div><span>${t('Conexão')}</span><b>${n.wifi ? 'Wi-Fi' : t('Cabo (Ethernet)')}</b></div>
+          <div><span>${t('Roteador')}</span><b>${esc(n.gateway)}</b></div>
+          <div><span>${t('MAC da placa')}</span><b>${esc(n.mac)}</b></div>
+          <div><span>${t('Nome do PC')}</span><b>${esc(info.host)}</b></div>
+          <div><span>${t('Placa de rede')}</span><b>${esc(n.adapter)}</b></div>
+        </div>` : `<div class="note">${t('Nenhuma rede conectada. Conecte o PC ao Wi-Fi ou ao cabo.')}</div>`}
+        <div class="field">${t('Endereço para abrir no celular')}</div>
         <div class="copyrow">
           <input class="inp" readonly value="${esc(info.url)}">
-          <button class="btn sm" id="copyUrl"><span class="ms">content_copy</span>Copiar</button>
+          <button class="btn sm" id="copyUrl"><span class="ms">content_copy</span>${t('Copiar')}</button>
           <button class="btn sm" id="showQr"><span class="ms">qr_code_2</span>QR</button>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Inicialização</div>
+        <div class="card-title">${LANG === 'en' ? 'Language · Idioma' : 'Idioma · Language'}</div>
+        <div class="muted">${t('Idioma do editor, do painel do celular e do menu do ícone')}</div>
+        <div class="chips">
+          <span class="chip${LANG === 'pt' ? ' on' : ''}" data-lang="pt"><span class="ms">translate</span>Português (Brasil)</span>
+          <span class="chip${LANG === 'en' ? ' on' : ''}" data-lang="en"><span class="ms">translate</span>English</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">${t('Inicialização')}</div>
         <div class="toggle${info.autostart ? ' on' : ''}" id="autoToggle">
-          <div class="txt"><b>Iniciar junto com o Windows</b><span>O PC Deck abre sozinho, escondido perto do relógio</span></div>
+          <div class="txt"><b>${t('Iniciar junto com o Windows')}</b><span>${t('O PC Deck abre sozinho, escondido perto do relógio')}</span></div>
           <div class="switch"></div>
         </div>
       </div>
 
-      <div class="muted" style="text-align:center">PC Deck versão ${esc(info.version)}</div>
+      <div class="muted" style="text-align:center">${t('PC Deck versão {0}', esc(info.version))}</div>
     </div>`;
-  $('copyUrl').onclick = () => copy(info.url, 'Endereço');
+  $('copyUrl').onclick = () => copy(info.url, t('Endereço'));
   $('showQr').onclick = () => window.open('/qr', '_blank', 'width=520,height=640');
+  box.querySelectorAll('[data-lang]').forEach(c => c.onclick = () => setLanguage(c.dataset.lang));
   $('autoToggle').onclick = async () => {
     try {
       const r = await api('/api/editor/autostart', { on: !info.autostart });
       info.autostart = r.autostart;
       renderSettings();
-      toast(r.autostart ? 'Vai iniciar com o Windows' : 'Não vai mais iniciar com o Windows');
+      toast(r.autostart ? t('Vai iniciar com o Windows') : t('Não vai mais iniciar com o Windows'));
     } catch (e) { toast(e.message, true); }
   };
 }
@@ -1021,55 +1207,61 @@ function renderSettings() {
 function renderTutorial() {
   const panel = $('panel');
   const n = info && info.net;
-  if (!n) { panel.innerHTML = '<h3><span class="ms">router</span>Fixar o IP</h3><div class="muted">Carregando...</div>'; return; }
+  if (!n) { panel.innerHTML = `<h3><span class="ms">router</span>${t('Fixar o IP')}</h3><div class="muted">${t('Carregando...')}</div>`; return; }
+  const names = LANG === 'en'
+    ? ['DHCP Reservation', 'Address Reservation', 'Static IP', 'Static Lease', 'DHCP Binding', 'IP & MAC Binding']
+    : ['Reserva de DHCP', 'Reserva de endereço', 'IP fixo', 'Address Reservation', 'Static Lease', 'DHCP Binding'];
   panel.innerHTML = `
-    <h3><span class="ms">router</span>Fixar o IP no roteador</h3>
-    <div class="muted">Assim o endereço do celular nunca muda. Você faz isso uma vez só, no roteador, e não mexe em nada do Windows.</div>
+    <h3><span class="ms">router</span>${t('Fixar o IP no roteador')}</h3>
+    <div class="muted">${t('Assim o endereço do celular nunca muda. Você faz isso uma vez só, no roteador, e não mexe em nada do Windows.')}</div>
     <div class="card">
       <div class="steps">
         <div class="step"><div>
-          <h4>Abra a página do roteador</h4>
-          <p>Usuário e senha costumam estar na <b>etiqueta embaixo do roteador</b>.</p>
-          <button class="btn sm" id="openRouter"><span class="ms">open_in_new</span>Abrir http://${esc(n.gateway)}</button>
+          <h4>${t('Abra a página do roteador')}</h4>
+          <p>${t('Usuário e senha costumam estar na <b>etiqueta embaixo do roteador</b>.')}</p>
+          <button class="btn sm" id="openRouter"><span class="ms">open_in_new</span>${t('Abrir {0}', 'http://' + esc(n.gateway))}</button>
         </div></div>
 
         <div class="step"><div>
-          <h4>Procure a reserva de IP</h4>
-          <p>O nome muda conforme a marca. Geralmente fica em <b>Rede</b>, <b>LAN</b> ou <b>DHCP</b>. Procure algo como:</p>
-          <div class="chips">
-            <span class="chip">Reserva de DHCP</span><span class="chip">Reserva de endereço</span><span class="chip">IP fixo</span>
-            <span class="chip">Address Reservation</span><span class="chip">Static Lease</span><span class="chip">DHCP Binding</span>
-          </div>
+          <h4>${t('Procure a reserva de IP')}</h4>
+          <p>${t('O nome muda conforme a marca. Geralmente fica em <b>Rede</b>, <b>LAN</b> ou <b>DHCP</b>. Procure algo como:')}</p>
+          <div class="chips">${names.map(x => `<span class="chip">${x}</span>`).join('')}</div>
         </div></div>
 
         <div class="step"><div>
-          <h4>Adicione este PC</h4>
-          <p>Clique em adicionar e preencha com estes dados:</p>
-          <div class="val"><span>MAC</span><b>${esc(n.mac)}</b><button class="btn sm icon" data-copy="${esc(n.mac)}" data-what="MAC" title="Copiar"><span class="ms">content_copy</span></button></div>
-          <div class="val"><span>IP</span><b>${esc(n.ip)}</b><button class="btn sm icon" data-copy="${esc(n.ip)}" data-what="IP" title="Copiar"><span class="ms">content_copy</span></button></div>
-          <p style="margin-top:6px">Se pedir um nome ou descrição, use <b>PC Deck</b>. Alguns roteadores mostram uma lista de aparelhos conectados: aí é só escolher <b>${esc(info.host)}</b>.</p>
+          <h4>${t('Adicione este PC')}</h4>
+          <p>${t('Clique em adicionar e preencha com estes dados:')}</p>
+          <div class="val"><span>MAC</span><b>${esc(n.mac)}</b><button class="btn sm icon" data-copy="${esc(n.mac)}" data-what="MAC" title="${t('Copiar')}"><span class="ms">content_copy</span></button></div>
+          <div class="val"><span>IP</span><b>${esc(n.ip)}</b><button class="btn sm icon" data-copy="${esc(n.ip)}" data-what="IP" title="${t('Copiar')}"><span class="ms">content_copy</span></button></div>
+          <p style="margin-top:6px">${t('Se pedir um nome ou descrição, use <b>PC Deck</b>. Alguns roteadores mostram uma lista de aparelhos conectados: aí é só escolher <b>{0}</b>.', esc(info.host))}</p>
         </div></div>
 
         <div class="step"><div>
-          <h4>Salve</h4>
-          <p>Se o roteador pedir, reinicie ele. Pronto: este PC vai receber sempre o IP <b>${esc(n.ip)}</b>.</p>
+          <h4>${t('Salve')}</h4>
+          <p>${t('Se o roteador pedir, reinicie ele. Pronto: este PC vai receber sempre o IP <b>{0}</b>.', esc(n.ip))}</p>
         </div></div>
       </div>
     </div>
     <div class="note">${n.wifi
-      ? 'Você está no <b>Wi-Fi</b>. Se um dia ligar o PC no cabo, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.'
-      : 'Você está no <b>cabo</b>. Se um dia usar o Wi-Fi do PC, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.'}</div>`;
+      ? t('Você está no <b>Wi-Fi</b>. Se um dia ligar o PC no cabo, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.')
+      : t('Você está no <b>cabo</b>. Se um dia usar o Wi-Fi do PC, a placa muda (e o MAC também), então vai precisar fazer uma reserva para ela.')}</div>`;
   $('openRouter').onclick = () => window.open('http://' + n.gateway, '_blank');
   panel.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy, b.dataset.what));
 }
 
 $('settingsNav').onclick = () => setView('settings');
 $('save').onclick = save;
-$('revert').onclick = () => { if (confirm('Descartar as alterações não salvas?')) load(); };
+$('revert').onclick = () => { if (confirm(t('Descartar as alterações não salvas?'))) load(); };
 $('qrBtn').onclick = () => window.open('/qr', '_blank', 'width=520,height=640');
 window.addEventListener('beforeunload', e => { if (cfg && isDirty()) { e.preventDefault(); e.returnValue = ''; } });
 
-load().catch(e => toast('Não consegui carregar o config: ' + e.message, true));
+// depois de trocar o idioma, volta direto para as configuracoes
+load().then(() => {
+  let back = false;
+  try { back = sessionStorage.getItem('deck.settings') === '1'; sessionStorage.removeItem('deck.settings'); } catch {}
+  if (back) setView('settings');
+})
+  .catch(e => toast(t('Não consegui carregar o config: {0}', e.message), true));
 </script>
 </body>
 </html>

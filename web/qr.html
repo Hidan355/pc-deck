@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>PC Deck - conectar celular</title>
+<title>PC Deck</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
@@ -18,12 +18,21 @@
 </head>
 <body>
 <div class="card">
-  <h1>Conectar o celular</h1>
-  <p>Com o celular no mesmo Wi-Fi do PC,<br>aponte a câmera para o código.</p>
+  <h1 id="h"></h1>
+  <p id="p"></p>
   <div id="qr"></div>
-  <div class="url">ou digite no navegador do celular:<br><b>{{URL}}</b></div>
+  <div class="url"><span id="u"></span><br><b>{{URL}}</b></div>
 </div>
 <script>
+  const EN = /^(pt|en)$/.test('{{LANG}}') ? '{{LANG}}' === 'en' : !navigator.language.toLowerCase().startsWith('pt');
+  const T = EN
+    ? { title: 'PC Deck - connect phone', h: 'Connect your phone', p: 'With the phone on the same Wi-Fi as the PC,<br>point the camera at the code.', u: 'or type in the phone browser:' }
+    : { title: 'PC Deck - conectar celular', h: 'Conectar o celular', p: 'Com o celular no mesmo Wi-Fi do PC,<br>aponte a câmera para o código.', u: 'ou digite no navegador do celular:' };
+  document.documentElement.lang = EN ? 'en' : 'pt-BR';
+  document.title = T.title;
+  document.getElementById('h').textContent = T.h;
+  document.getElementById('p').innerHTML = T.p;
+  document.getElementById('u').textContent = T.u;
   new QRCode(document.getElementById('qr'), { text: '{{URL}}', width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
 </script>
 </body>

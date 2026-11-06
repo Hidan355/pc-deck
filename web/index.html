@@ -192,7 +192,7 @@ code { background: var(--panel); padding: 2px 6px; border-radius: 6px; }
     <div class="stats">
       <div class="chip"><span class="ms">memory</span><span id="cpu">--%</span><span class="bar"><i id="cpub"></i></span></div>
       <div class="chip"><span class="ms">memory_alt</span><span id="ram">--%</span><span class="bar"><i id="ramb"></i></span></div>
-      <button class="iconbtn" id="fs" title="Tela cheia"><span class="ms">fullscreen</span></button>
+      <button class="iconbtn" id="fs" data-i18n-title="Tela cheia"><span class="ms">fullscreen</span></button>
     </div>
   </header>
 
@@ -200,7 +200,7 @@ code { background: var(--panel); padding: 2px 6px; border-radius: 6px; }
     <div class="bgart" id="bgart"></div>
     <div class="art" id="art"><span class="ms">music_note</span></div>
     <div class="meta">
-      <div class="ti" id="title">Nada tocando</div>
+      <div class="ti" id="title" data-i18n>Nada tocando</div>
       <div class="ar" id="artist">—</div>
       <div class="transport">
         <button data-media="prev"><span class="ms">skip_previous</span></button>
@@ -221,17 +221,39 @@ code { background: var(--panel); padding: 2px 6px; border-radius: 6px; }
 </div>
 
 <div class="toast" id="toast"></div>
-<div class="offline" id="offline">Sem conexão com o PC</div>
+<div class="offline" id="offline" data-i18n>Sem conexão com o PC</div>
 <div class="locked" id="locked">
   <div>
     <span class="ms">phonelink_lock</span>
-    <h2>Conecte ao PC</h2>
-    <p>No PC, abra <code>iniciar.bat</code> e escaneie<br>o QR code que aparece na tela.</p>
+    <h2 data-i18n>Conecte ao PC</h2>
+    <p id="lockedHelp"></p>
   </div>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
+
+// ---------- idioma (o servidor troca {{LANG}} por pt ou en) ----------
+const LANG = /^(pt|en)$/.test('{{LANG}}') ? '{{LANG}}' : (navigator.language.toLowerCase().startsWith('pt') ? 'pt' : 'en');
+const LOCALE = LANG === 'en' ? 'en-US' : 'pt-BR';
+const EN = {
+  'Tela cheia': 'Full screen',
+  'Nada tocando': 'Nothing playing',
+  'Sem conexão com o PC': 'No connection to the PC',
+  'Conecte ao PC': 'Connect to the PC',
+  'No PC, clique no ícone do <b>PC Deck</b> perto do relógio,<br>escolha <b>Conectar celular</b> e escaneie o QR code.':
+    'On the PC, click the <b>PC Deck</b> icon near the clock,<br>choose <b>Connect phone</b> and scan the QR code.',
+  'Sem acesso': 'No access',
+  'Erro': 'Error',
+  'Segure para confirmar': 'Hold to confirm',
+  'Tela cheia não suportada aqui': 'Full screen is not supported here',
+  'No iPhone: Compartilhar → Adicionar à Tela de Início': 'On iPhone: Share → Add to Home Screen'
+};
+const t = s => (LANG === 'en' && EN[s]) || s;
+document.documentElement.lang = LANG === 'en' ? 'en' : 'pt-BR';
+document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.textContent.trim()); });
+document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+$('lockedHelp').innerHTML = t('No PC, clique no ícone do <b>PC Deck</b> perto do relógio,<br>escolha <b>Conectar celular</b> e escaneie o QR code.');
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch {} }
@@ -248,9 +270,9 @@ async function api(path, body) {
     headers: { 'X-Token': token || '', 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined
   });
-  if (r.status === 401) { $('locked').classList.add('show'); throw new Error('Sem acesso'); }
+  if (r.status === 401) { $('locked').classList.add('show'); throw new Error(t('Sem acesso')); }
   const j = await r.json().catch(() => ({}));
-  if (!r.ok || j.ok === false) throw new Error(j.error || ('Erro ' + r.status));
+  if (!r.ok || j.ok === false) throw new Error(j.error || (t('Erro') + ' ' + r.status));
   return j;
 }
 
@@ -269,8 +291,8 @@ function toast(msg, bad) {
 // ---------- relogio ----------
 function tick() {
   const d = new Date();
-  $('time').textContent = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  const ds = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).replace(/\./g, '');
+  $('time').textContent = d.toLocaleTimeString(LOCALE, { hour: '2-digit', minute: '2-digit' });
+  const ds = d.toLocaleDateString(LOCALE, { weekday: 'short', day: '2-digit', month: 'short' }).replace(/\./g, '');
   $('date').textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
 }
 tick(); setInterval(tick, 1000);
@@ -348,7 +370,7 @@ function makeTile(btn, idx) {
     if (btn.confirm) {
       clearTimeout(holdT);
       el.classList.remove('hold');
-      if (!fired && !cancel) toast('Segure para confirmar');
+      if (!fired && !cancel) toast(t('Segure para confirmar'));
     }
   };
   el.addEventListener('pointerup', () => release(false));
@@ -429,13 +451,15 @@ async function poll() {
     // config.json mudou (editor do PC): recarrega os botoes
     if (cfgv && s.cfgv !== cfgv) loadConfig().catch(() => {});
     cfgv = s.cfgv;
+    // idioma trocado no editor do PC: recarrega a pagina no idioma novo
+    if (s.lang && s.lang !== LANG) { location.reload(); return; }
     $('offline').classList.remove('show');
     $('cpu').textContent = s.cpu + '%'; $('cpub').style.width = s.cpu + '%';
     $('ram').textContent = s.ram + '%'; $('ramb').style.width = s.ram + '%';
     if (s.volume != null && !dragging) { paintVol(s.volume); lastSent = s.volume; }
     paintMute(s.muted);
     const m = s.media;
-    $('title').textContent = m && m.title ? m.title : 'Nada tocando';
+    $('title').textContent = m && m.title ? m.title : t('Nada tocando');
     $('artist').textContent = m && m.artist ? m.artist : (m && m.app ? m.app.replace(/\.exe$/i, '') : '—');
     $('playico').textContent = m && m.playing ? 'pause' : 'play_arrow';
     const k = m && m.art;
@@ -457,8 +481,8 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) poll
 $('fs').addEventListener('click', () => {
   const d = document.documentElement;
   if (document.fullscreenElement) document.exitFullscreen();
-  else if (d.requestFullscreen) d.requestFullscreen().catch(() => toast('Tela cheia não suportada aqui'));
-  else toast('No iPhone: Compartilhar → Adicionar à Tela de Início');
+  else if (d.requestFullscreen) d.requestFullscreen().catch(() => toast(t('Tela cheia não suportada aqui')));
+  else toast(t('No iPhone: Compartilhar → Adicionar à Tela de Início'));
 });
 document.addEventListener('fullscreenchange', () => {
   $('fs').firstChild.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
