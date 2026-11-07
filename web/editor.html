@@ -436,6 +436,11 @@ const EN = {
   'Endereço para abrir no celular': 'Address to open on the phone',
   'Copiar': 'Copy',
   'Endereço': 'Address',
+  'Painel do celular': 'Phone panel',
+  'Mostrar o player de música': 'Show the music player',
+  'Aparece no topo só enquanto algo está tocando no PC': 'Shows at the top only while something is playing on the PC',
+  'Player desativado no celular': 'Player turned off on the phone',
+  'Player ativado no celular': 'Player turned on on the phone',
   'Inicialização': 'Startup',
   'Iniciar junto com o Windows': 'Start with Windows',
   'O PC Deck abre sozinho, escondido perto do relógio': 'PC Deck opens by itself, hidden near the clock',
@@ -1182,6 +1187,14 @@ function renderSettings() {
       </div>
 
       <div class="card">
+        <div class="card-title">${t('Painel do celular')}</div>
+        <div class="toggle${cfg.showPlayer !== false ? ' on' : ''}" id="playerToggle">
+          <div class="txt"><b>${t('Mostrar o player de música')}</b><span>${t('Aparece no topo só enquanto algo está tocando no PC')}</span></div>
+          <div class="switch"></div>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="card-title">${t('Inicialização')}</div>
         <div class="toggle${info.autostart ? ' on' : ''}" id="autoToggle">
           <div class="txt"><b>${t('Iniciar junto com o Windows')}</b><span>${t('O PC Deck abre sozinho, escondido perto do relógio')}</span></div>
@@ -1194,6 +1207,12 @@ function renderSettings() {
   $('copyUrl').onclick = () => copy(info.url, t('Endereço'));
   $('showQr').onclick = () => window.open('/qr', '_blank', 'width=520,height=640');
   box.querySelectorAll('[data-lang]').forEach(c => c.onclick = () => setLanguage(c.dataset.lang));
+  $('playerToggle').onclick = async () => {
+    // fica no config.json (o celular ja recarrega quando ele muda); ligado e o padrao
+    if (cfg.showPlayer === false) delete cfg.showPlayer; else cfg.showPlayer = false;
+    renderSettings();
+    if (await save()) toast(cfg.showPlayer === false ? t('Player desativado no celular') : t('Player ativado no celular'));
+  };
   $('autoToggle').onclick = async () => {
     try {
       const r = await api('/api/editor/autostart', { on: !info.autostart });

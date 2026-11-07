@@ -16,7 +16,7 @@
 ## Recursos
 
 - **Painel no celular** pelo navegador, sem instalar app: funciona em Android e iPhone e pode ser adicionado à tela inicial
-- **Tocando agora**: capa, título e artista do que está tocando (Spotify, YouTube, Chrome...), com play/pause, anterior e próxima
+- **Tocando agora**: capa, título e artista do que está tocando (Spotify, YouTube, Chrome...), com play/pause, anterior e próxima. O player só aparece enquanto algo toca e pode ser desligado em *Configurações*.
 - **Volume do Windows** com barra deslizante e mudo, além de CPU e RAM em tempo real
 - **Botões configuráveis**: atalhos de teclado, abrir apps/sites/pastas, digitar texto, comandos PowerShell, volume e mídia
 - **Macros**: várias ações em sequência num botão só, com pausas entre elas

@@ -171,6 +171,18 @@ nav button.on .ms { color: var(--acc); }
   nav button:not(.on) span:last-child { display: none; }
 }
 
+/* ---- player so aparece tocando: sem ele, a grade ocupa o espaco ---- */
+.app.noplayer .now { display: none; }
+.app.noplayer { grid-template-rows: auto 1fr auto; }
+@media (orientation: landscape) {
+  .app.noplayer { grid-template-columns: 1fr; }
+  .app.noplayer header { grid-column: 1; grid-row: 1; }
+  .app.noplayer .gridwrap { grid-column: 1; grid-row: 2; }
+  .app.noplayer nav { grid-column: 1; grid-row: 3; }
+}
+.now.pop { animation: nowin .35s ease; }
+@keyframes nowin { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
+
 /* ---- aviso / toast ---- */
 .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: #222838; border: 1px solid var(--line); padding: 10px 16px; border-radius: 14px; font-size: 14px; opacity: 0; transition: .25s; pointer-events: none; max-width: 90vw; text-align: center; z-index: 10; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -186,7 +198,7 @@ code { background: var(--panel); padding: 2px 6px; border-radius: 6px; }
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app noplayer" id="app">
   <header>
     <div class="clock" id="clock"><div class="t" id="time">--:--</div><div class="d" id="date"></div></div>
     <div class="stats">
@@ -441,6 +453,22 @@ function paintMute(m) {
   $('muteico').textContent = m ? 'volume_off' : 'volume_up';
 }
 
+// ---------- player ----------
+// aparece so enquanto toca; ao pausar fica mais um pouco para dar tempo de voltar a tocar.
+// "showPlayer": false no config (Configuracoes do editor) desliga de vez.
+const PLAYER_GRACE = 20000;
+let playerOn = false, lastPlaying = 0;
+function showPlayer(playing) {
+  if (playing) lastPlaying = Date.now();
+  const want = !!config && config.showPlayer !== false && (playing || Date.now() - lastPlaying < PLAYER_GRACE);
+  if (want === playerOn) return;
+  playerOn = want;
+  $('app').classList.toggle('noplayer', !want);
+  const now = document.querySelector('.now');
+  now.classList.remove('pop');
+  if (want) { void now.offsetWidth; now.classList.add('pop'); }
+}
+
 // ---------- estado ----------
 let artKey = null, fails = 0, cfgv = null;
 async function poll() {
@@ -459,6 +487,7 @@ async function poll() {
     if (s.volume != null && !dragging) { paintVol(s.volume); lastSent = s.volume; }
     paintMute(s.muted);
     const m = s.media;
+    showPlayer(m && m.playing);
     $('title').textContent = m && m.title ? m.title : t('Nada tocando');
     $('artist').textContent = m && m.artist ? m.artist : (m && m.app ? m.app.replace(/\.exe$/i, '') : '—');
     $('playico').textContent = m && m.playing ? 'pause' : 'play_arrow';
